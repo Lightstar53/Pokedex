@@ -10,7 +10,9 @@ example command (/isitup google.com):
 example command (/isitup google)
 * Whoops, isitup does not think google is a valid website, supply both domainname *AND* suffix (i.e amazon.com)
 
--- Considering adding automatic .com if left out to try anyway. 
+![alt tag](http://puu.sh/nIXP1/677cbcbfe9.png)
+
+-- Considering adding automagical .com if left out to try anyway, but not a priority.
 
 Intended usage when finished (to be updated):
 /dex and /pokedex are equal
