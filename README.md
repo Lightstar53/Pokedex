@@ -1,6 +1,6 @@
 # PokedexService
 
-Service to run on a server for communication with slack/discord for slash command/bot usage in channels.
+Service to run on a server using Flask with python and nginx for communication with a slack/discord bot for slash commands in channels.
 
 for testing purposes functionality for /isitup that queries isitup.org's API has also been added.
 example command (/isitup google.com):
