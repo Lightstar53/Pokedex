@@ -96,5 +96,6 @@ class ServiceHandler:
 				    <body>
 				      <h1>Pokedex</h1>
 				      <p>Nothing to see here, use the slack bot.</p>
+				      <p>Visit <a href="https://github.com/Sidaroth/PokedexService">https://github.com/Sidaroth/PokedexService</a> for more information</a>
 				    </body>
 				 </html>"""
