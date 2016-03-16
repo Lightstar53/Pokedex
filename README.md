@@ -1,8 +1,18 @@
 # PokedexService
 
-Service to run on a server for communication with slack/discord for slash command/bot usage in channels.
+Service to run on a server using Flask with python and nginx for communication with a slack/discord bot for slash commands in channels.
 
-Example usage (to be updated):
+for testing purposes functionality for /isitup that queries isitup.org's API has also been added.
+example command (/isitup google.com):
+* Yay, google.com appears to be up!
+* Nope, google.com appears to be down!
+
+example command (/isitup google)
+* Whoops, isitup does not think google is a valid website, supply both domainname *AND* suffix (i.e amazon.com)
+
+-- Considering adding automatic .com if left out to try anyway. 
+
+Intended usage when finished (to be updated):
 /dex and /pokedex are equal
 
 /dex 123
