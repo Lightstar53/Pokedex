@@ -4,8 +4,8 @@ Service to run on a server for communication with slack/discord for slash comman
 
 for testing purposes functionality for /isitup that queries isitup.org's API has also been added.
 example command:
-/isitup google.com
-* Results can be:
+* /isitup google.com
+Results can be:
 * Yay, google.com appears to be up!
 * Nope, google.com appears to be down!
 * Whoops, isitup does not think google is a valid website, supply both domainname *AND* suffix (i.e amazon.com)
