@@ -1,4 +1,4 @@
-# PokedexService
+### Purpose and Usage
 
 Service to run on a server using Flask with python and nginx for communication with a slack/discord bot for slash commands in channels.
 
@@ -44,3 +44,12 @@ Intended usage when finished (to be updated):
 /pokedex small 123
 * Pokemon #123 - Scyther
 * Type(s): Flying, Bug
+
+### Installation / Requirements
+* Web server capable of handling python
+* python3(.5) with dependencies from requirements.txt
+* Slack server with development access to enable integration with private tokens.
+
+run $ pip3 install -r requirements.txt to automagically install dependencies. 
+
+
