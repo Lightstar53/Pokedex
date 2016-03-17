@@ -52,4 +52,36 @@ Intended usage when finished (to be updated):
 
 run $ pip3 install -r requirements.txt to automagically install dependencies. 
 
+### Database Structure and Setup
 
+###### Type Table
+```
+CREATE TABLE types (
+id int,
+name text,
+immunities text[],
+resistances text[],
+weaknesses text[],
+halfDamageTo text[],
+noDamageTo text[],
+updateTime date);
+```
+Example content (not accurate): 
+
+| id  | name   | immunities         | resistances  | weaknesses | halfDamageTo | noDamageTo  | updateTime  |
+| --- | ------ | ------------------ | ------------ | ---------- | ------------ | ----------- | ----------- |
+|  1  | normal | [grass, poison}    | [none}       | [electric} | [water}      | [psychic}   | 2016-03-12  |
+|  2  | grass  | [normal, electric} | [normal}     | [water}    | [poison}     | [steel}     | 2016-03-17  |
+
+###### Pokemon Table (WIP)
+```
+CREATE TABLE pokemon (
+id int,
+name text,
+immunities text[],
+resistances text[],
+weaknesses text[],
+updateTime date);
+```
+Example content (not accurate):
+To come...
