@@ -14,8 +14,18 @@ VERBOSE = True			##
 
 app = Flask(__name__)
 
+
+@app.route("/github", methods=['POST'])
+def pull():
+	""" Github """
+	payload = request.form['payload']
+	print(payload)
+
+
+
 @app.route("/", methods=['POST', 'GET'])
 def run():
+	""" Posts/Gets to holt.0x.no/slack/PokedexService """
 	## POST / Bots
 	if request.method == 'POST':
 		return serviceHandler.servePost(request)			

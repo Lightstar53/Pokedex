@@ -13,7 +13,7 @@ class ServiceHandler:
 	def __init__(self, verbose=False):
 		""" Object model / Constructor """
 		self.verboseprint = print if verbose else lambda *a, **k: None
-		self.verboseprint("ServiceHandler initialized in verbose mode... (Consider setting verbose to false)")
+		self.verboseprint("ServiceHandler initialized in verbose mode... (Consider setting app.py: verbose to false)")
 
 		self.pokedexRequestHandler = PokedexRequestHandler(verbose=verbose)
 		self.isitupRequestHandler = IsitupRequestHandler(verbose=verbose)
@@ -28,14 +28,14 @@ class ServiceHandler:
 		self.INVALID_COMMAND = 'invalidCommand'
 		self.verboseprint("Awaiting requests...")
 
-	def loadValidTokens(self):
+	def loadValidTokens(self):		## Consider environment variable
 		""" Loads valid tokens from validTokens.secret
 		    format: token1,token2,token3,token4 etc."""
 		self.verboseprint("Loading valid tokens...")
 
 		thisDir = os.path.dirname(os.path.realpath('__file__'))
 		fileName = os.path.join(thisDir, 'validTokens.secret')
-		self.verboseprint("File path to parent directory: " + fileName)
+		self.verboseprint("File path: " + fileName)
 
 		## Make sure we can open the file
 		try:
