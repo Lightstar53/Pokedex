@@ -70,8 +70,8 @@ Example content (not accurate):
 
 | id  | name   | immunities         | resistances  | weaknesses | halfDamageTo | noDamageTo  | updateTime  |
 | --- | ------ | ------------------ | ------------ | ---------- | ------------ | ----------- | ----------- |
-|  1  | normal | [grass, poison}    | [none}       | [electric} | [water}      | [psychic}   | 2016-03-12  |
-|  2  | grass  | [normal, electric} | [normal}     | [water}    | [poison}     | [steel}     | 2016-03-17  |
+|  1  | normal | {grass, poison}    | {none}       | {electric} | {water}      | [psychic}   | 2016-03-12  |
+|  2  | grass  | {normal, electric} | {normal}     | {water}    | {poison}     | [steel}     | 2016-03-17  |
 
 ###### Pokemon Table (WIP)
 ```
