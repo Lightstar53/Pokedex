@@ -50,8 +50,6 @@ class ServiceHandler:
 			file.close()
 			tokens = fileInput.split(",")
 			self.VALID_TOKENS = tokens
-			self.verboseprint("valid tokens loaded:")
-			self.verboseprint(self.VALID_TOKENS)
 
 	def errorReply(self, errorType, command=None):
 		""" Given an errortype and sometimes a command, returns the correct error response in JSON form """
@@ -73,17 +71,17 @@ class ServiceHandler:
 			self.verboseprint("VALID_TOKENS are: " + self.VALID_TOKENS)
 			return errorReply(TOKEN_MISMATCH)
 
-		return self.delegate(request.form['command'], request.form['text'])
+		return self.delegate(request.form['command'], request.form['text'], request.form['response_url'])
 
-	def delegate(self, command, text):
+	def delegate(self, command, text, response_url):
 		""" Delegates responsibility to the correct handler depending on command """
 		self.verboseprint("Delegating...")
 		if command == '/isitup':
 			return self.isitupRequestHandler.handleIsitupRequest(text)
 		elif command == '/pokedex':
-			return self.pokedexRequestHandler.handlePokedexRequest(text)
+			return self.pokedexRequestHandler.handlePokedexRequest(text, response_url)
 		elif command == '/dex':
-			return self.pokedexRequestHandler.handlePokedexRequest(text)
+			return self.pokedexRequestHandler.handlePokedexRequest(text, response_url)
 		else:
 			self.verboseprint("Invalid command: " + command)
 			return errorReply(INVALID_COMMAND)

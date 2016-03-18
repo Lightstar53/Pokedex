@@ -14,10 +14,10 @@ class IsitupRequestHandler:
 		""" Displays helpful information privately to the user on request """
 		responseString = "*Help:*\n"
 
-		fallBack = "Example usage: '/isitup google.com, /isitup amazon.com, /isitup vg.no"
+		fallBack = "Example usage: /isitup google.com, /isitup amazon.com, /isitup vg.no"
 		helpString = "Example usage (try either):\n */isitup google.com* \n */isitup amazon.com* \n */isitup vg.no* \n"
 		helpString += "Please make sure to include both *domain* (google) and *suffix* (.com)\n"
-		helpString += "For more detailed information please see the documentation page."
+		helpString += "For more detailed information please see the documentation page by clicking the title."
 		
 		response = {
 			"text": responseString,

@@ -9,23 +9,14 @@
 from flask import Flask, request, jsonify
 from classes.ServiceHandler import ServiceHandler
 
-DEBUG = False			## Potentially take these as CL arguments
+DEBUG = True			## Potentially take these as CL arguments
 VERBOSE = True			## 
 
 app = Flask(__name__)
 
-
-@app.route("/github", methods=['POST'])
-def pull():
-	""" Github """
-	payload = request.form['payload']
-	print(payload)
-
-
-
 @app.route("/", methods=['POST', 'GET'])
 def run():
-	""" Posts/Gets to holt.0x.no/slack/PokedexService """
+	""" Posts/Gets to set-up '/' """
 	## POST / Bots
 	if request.method == 'POST':
 		return serviceHandler.servePost(request)			
@@ -33,6 +24,9 @@ def run():
 	## GET / webpage
 	elif request.method == 'GET':
 		return serviceHandler.serveGet(request)
+
+def handlePush():
+	print("Handling push")
 
 if __name__ == "__main__":
 	serviceHandler = ServiceHandler(verbose=VERBOSE)
