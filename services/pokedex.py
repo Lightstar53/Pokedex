@@ -3,24 +3,26 @@
 # Project: https://github.com/Sidaroth/PokedexService/
 
 from flask import jsonify
-from classes.DatabaseHandler import DatabaseHandler
 from enum import Enum, unique
+from datetime import date
 import requests
 
-@unique
-class queryType(Enum):
-	""" Enumerator for query types. @unique guarantees unique values. """
-	unknown = 0
-	pokeType = 1
-	pokemon = 2
-	ability = 3
+from classes.DatabaseHandler import DatabaseHandler
+from classes.Typedata import Typedata
 
+@unique
+class keywords(Enum):
+	pokeType = 'type'
+	pokemon = 'pokemon'
+	dexList = 'list'
+	ability = 'ability'
 
 class PokedexRequestHandler:
 	def __init__(self, verbose=False):
 		""" Object model / Constructor """
 		self.verboseprint = print if verbose else lambda *a, **k: None
 		self.DB = DatabaseHandler(verbose)
+		self.baseUrl = 'http://pokeapi.co/api/v2/'
 
 		self.DataValidity = 14				## Number of days data is valid before re-retrieving
 		self.totalNumberOfPokemon = 721		## As of generation 6 XY/ORAS	
@@ -29,81 +31,51 @@ class PokedexRequestHandler:
 		self.notFound = 'Not found.'
 
 	def handlePokedexRequest(self, text, response_url):
-		""" handle pokedex requests """
+		""" Determine what kind of pokedex request is made, and delegate responsibility accordingly. """
 		self.verboseprint("Handling a /dex request with text: " + text)
 		if not self.DB.connectToDatabase():
 			return jsonify({"response_type": "ephemeral", "text": "Database connection error. Alert admin. "})
 
-		if text.lower() == "help":			# Oh snap! A user needs help
+		text = text.lower()
+		if text == "help":			# Oh snap! A user needs help
 			return self.help()
 
-		text = text.lower()
-		query = self.determineQueryType(text)
-		
-		if query == queryType.pokeType:								## Known type 
-			return self.handleKnownType(text)
-		elif query == queryType.pokemon:							## Known pokemon
-			return self.handleKnownPokemon(text)
-		elif query == queryType.ability:							## Known ability
-			return self.handleKnownAbility(text)
-		elif query == queryType.unknown:							# You're a pokemon master, you discovered a new ability/type/pokemon, legendary!
-			return self.handleUnknown(text, response_url)
+		# Split the input string on whitespace " ".
+		textElements = text.split(" ")
+		keyword = textElements[0]
 
-	def determineQueryType(self, text):
-		""" Determine if the input text is known """
-		self.verboseprint("Checking query type...")	
+		if keyword == keywords.pokeType.value:
+			self.verboseprint("Keyword 'type' found!")
+			return self.handleTypeRequest(textElements[1:])
 
-		for pokeType in self.DB.getAllKnownTypes():
-			if pokeType['name'] == text or str(pokeType['id']) == text:
-				return queryType.pokeType
-		
-		for pokemon in self.DB.getAllKnownPokemon():
-			if pokemon['name'] == text or str(pokemon['id']) == text:
-				self.verboseprint(pokemon)
-				return queryType.pokemon
+		# Backup plan: 
+		# We don't know it, pokeapi doesn't know it. It's probably not written correctly, or it is not relevant. 
+		return self.errorReply()
+	
+	def handleTypeRequest(self, query):
+		""" Handles any 'type' request. First we have to check if it is currently known by our DB.
+			If it is known, we have to determine if the data is too old and has to be re-acquired """
+		knownTypes = self.DB.getAllKnownTypes()
+		self.verboseprint("Complete query: " + query[0])
 
-		for ability in self.DB.getAllKnownAbilities():
-			if ability['name'] == text or str(ability['id']) == text:
-				return queryType.ability
+		match = False
+		## Check old data/reaquire
+		for knownType in knownTypes:
+			if query[0] == knownType['name'] or query[0] == knownType['id']:
+				self.verboseprint("Typematch found!")
+				match = True
 
-		return queryType.unknown
 
-	def retrieveInformation(self, text, query=queryType.unknown):
-		""" Determines what type of request to make """
-		baseUrl = "http://pokeapi.co/api/v2/"
+		queryString = self.baseUrl + 'type/' + query[0]
+		self.verboseprint("Querystring: " + queryString)
+		## If no data has been found we need to query the API for potential new type (or BS)
+		response = self.makePokeAPIRequest(queryString)
 
-		# TODO
-		# Needs the original requests response_url to send a delayed answer. 
-		# PokeAPI is slow, 3000ms is not enough to avoid timeout when running several requests.
+		if response != False: # We found something useful
+			self.verboseprint(response)
+			return jsonify({'resposne_type': 'in_channel', 'text': "*TEST* - Type id: " + str(response['id']) + ", Type name: " + response['name'] +", double damage from: " + str(response['damage_relations']['double_damage_from'])})			# Test
 
-		if query == queryType.unknown:
-			self.verboseprint("Handling an unknown query")
-			## Is it recognized as a pokemon?
-			queryString = baseUrl + 'pokemon/' + str(text)
-			response = self.makePokeAPIRequest(queryString)
-			if response != False:
-				return response
-
-			## Is it recognized as a type?
-			queryString = baseUrl + 'type/' + str(text)
-			response = self.makePokeAPIRequest(queryString)
-			if response != False:
-				return response
-			## Is it recognized as an ability?
-			queryString = baseUrl + 'ability/' + str(text)
-			response = self.makePokeAPIRequest(queryString)
-			if response != False:
-				return response
-
-			return False
-
-		## Future?
-		#elif query == queryType.pokeType:
-		#	queryString = baseUrl + 'type/' + str(text)
-		#elif query == queryType.pokemon:
-		#	queryString = baseUrl + 'pokemon/' + str(text)
-		#elif query == queryType.ability:
-		#	queryString = baseUrl + 'ability/' + str(text)
+		return self.errorReply()
 
 
 	def makePokeAPIRequest(self, queryString ):
@@ -114,29 +86,6 @@ class PokedexRequestHandler:
 			return False
 
 		return response
-
-
-	def handleKnownType(self, text):
-		""" This type is already in our database, determine if old information is valid (how recent is it?) or retrieve new. """
-
-	def handleKnownPokemon(self, text):
-		""" This pokemon is already in our database, determine if old information is valid (how recent is it?) or retrieve new. """
-		self.verboseprint("We found a known pokemon!")
-		return jsonify({"response_type": "in_channel", "text": "Your query *" + text + "* matches a known pokemon! (TEST)"})
-	
-	def handleKnownAbility(self, text):
-		""" This ability is already in our database, determine if old information is valid (how recent is it?) or retrieve new. """
-
-
-	def handleUnknown(self, text, response_url):
-		""" Determine if this is a newly discovered pokemon, type, or ability, or if it is just a user error. """
-		response = self.retrieveInformation(text)
-		if response != False:
-			self.verboseprint("We actually found something...")
-			return jsonify({"response_type": "in_channel", "text": "Your query *" + text + "* Amazingly matched something online. "})
-
-		# We don't know it, pokeapi doesn't know it. It's probably not written correctly, or is not relevant. 
-		return jsonify({"response_type": "in_channel", "text": "Your query *" + text + "* does not match any currently known pokemon, types or abilities! Try /dex help for more information."})
 
 	def help(self):
 		""" Displays helpful information privately to the user on request """
@@ -162,3 +111,6 @@ class PokedexRequestHandler:
 		}
 
 		return jsonify(response)
+
+	def errorReply(self):
+		return jsonify({"response_type": "in_channel", "text": "Your query does not match any currently known pokemon, types or abilities! Try /dex help for more information."})

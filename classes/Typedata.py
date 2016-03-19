@@ -14,7 +14,7 @@ class Typedata:
 		self.weaknesses = []				# array[]
 		self.halfDamageTo = []				# array[]
 		self.noDamageTo = []				# array[]
-											# updateTime
+		self.updateTime	= None				# updateTime
 		# self.pokemon = [] # Potentially a list of pokemon IDs that are of type self.name, but probably unnecessary
 		# self.moves = [] # Potentially a list of *all* moves that are of type self.name
 	

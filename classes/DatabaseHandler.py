@@ -47,15 +47,22 @@ class DatabaseHandler:
 			return False
 
 
-	## These will return a list dictionaries of known types [{'name': normal, 'id': 1}, ...]
 	def getAllKnownTypes(self):
-		""" Returns the name and id of all known types in the database """
-		return []
+		""" Returns a dictionary of all known types in the database """
+		knownTypes = []
+
+		## insert SQL here
+
+		return knownTypes
 
 	def getAllKnownPokemon(self):
-		""" Returns the name and id of all known pokemon in the database """
-		return []
+		""" Returns a dictionary of all known pokemon in the database """
+		knownPokemon = []
+
+		return knownPokemon
 
 	def getAllKnownAbilities(self):
-		""" Returns the name and id of all known abilities in the database """
-		return []
+		""" Returns a dictionary of all known abilities in the database """
+		knownAbilities = []
+
+		return knownAbilities
