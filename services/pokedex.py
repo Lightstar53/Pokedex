@@ -30,6 +30,13 @@ class PokedexRequestHandler:
 		self.generationStartPokemon = [1, 152, 252, 387, 494, 650, 722]	# Gen1 - 7
 		self.notFound = 'Not found.'
 
+		self.colorLookup = {
+			'normal': '#A8A77A', 'fire': '#EE8130', 'water': '#6390F0', 'electric': '#F7D02C',
+			'grass': '#7AC74C', 'ice': '#96D9D6', 'fighting': '#C22E28', 'poison': '#A33EA1',
+			'ground': '#E2BF65', 'flying': '#A98FF3', 'psychic': '#F95587', 'bug': '#A6B91A',
+			'rock': '#B6A136', 'ghost': '#735797', 'dragon': '#6F35FC', 'dark': '#705746',
+			'steel': '#B7B7CE', 'fairy': '#D685AD'}
+
 	def handlePokedexRequest(self, text, response_url):
 		""" Determine what kind of pokedex request is made, and delegate responsibility accordingly. """
 		self.verboseprint("Handling a /dex request with text: " + text)
@@ -72,11 +79,14 @@ class PokedexRequestHandler:
 		response = self.makePokeAPIRequest(queryString)
 
 		if response != False: # We found something useful
-			self.verboseprint(response)
-			return jsonify({'resposne_type': 'in_channel', 'text': "*TEST* - Type id: " + str(response['id']) + ", Type name: " + response['name'] +", double damage from: " + str(response['damage_relations']['double_damage_from'])})			# Test
+			typedata = Typedata(response)
+			self.DB.storeType(typedata)
+
+			returnString = self.formatTypeString(typedata)
+
+			return jsonify(returnString)
 
 		return self.errorReply()
-
 
 	def makePokeAPIRequest(self, queryString ):
 		""" Makes a request to pokeAPI with given argument """
@@ -86,6 +96,54 @@ class PokedexRequestHandler:
 			return False
 
 		return response
+
+	def formatTypeString(self, typedata):
+		""" Formats a type string for pretty return to slack """
+		self.verboseprint("Formatting type string!")
+		header = "*Type:*\n"
+		color = self.colorLookup[typedata.name]
+		responseType = 'in_channel'		# 'ephemeral' for private.
+		fallback = "Type information for " + typedata.name + "."
+
+		## String formatting #pretty #print
+		weaknessString = "*Weaknesses*: "				+ self.stringBuilder(typedata.weaknesses)
+		resistanceString = "*Resistances*: "			+ self.stringBuilder(typedata.resistances)
+		immunityString = "*Immunities*: "				+ self.stringBuilder(typedata.immunities)
+		resistedString = "*Resisted by*: "				+ self.stringBuilder(typedata.halfDamageTo)
+		ineffectiveString = "*Ineffective against*: "	+ self.stringBuilder(typedata.noDamageTo)
+
+		responseString = weaknessString + resistanceString + immunityString + resistedString + ineffectiveString + "\n"
+
+		response = {
+			"text": header,
+			"attachments": [{
+				"fallback": fallback,
+				"color": color,
+				"title": typedata.name.title(),
+				"title_link": "https://github.com/Sidaroth/PokedexService",
+				"text": responseString,
+				"mrkdwn_in": ['text']
+			}],
+			"response_type": responseType
+		}
+
+		return response
+
+	def stringBuilder(self, mList):
+		count = 0
+		responseString = ""
+
+		if len(mList) == 0:
+			responseString += "None.\n"
+
+		for thing in mList:
+			responseString += thing.title()
+			count += 1
+			if count == len(mList):
+				responseString += ".\n"
+			else:
+				responseString += ", "
+		return responseString
 
 	def help(self):
 		""" Displays helpful information privately to the user on request """

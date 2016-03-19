@@ -3,6 +3,7 @@
 # Project: https://github.com/Sidaroth/PokedexService/
 import psycopg2
 import os
+from classes.Typedata import Typedata
 
 class DatabaseHandler:
 	""" Handles all things database """
@@ -46,7 +47,10 @@ class DatabaseHandler:
 			self.verboseprint(exception)
 			return False
 
-
+	def storeType(self, typedata):
+		""" Stores a type with the provided information in the database """
+		
+		
 	def getAllKnownTypes(self):
 		""" Returns a dictionary of all known types in the database """
 		knownTypes = []
