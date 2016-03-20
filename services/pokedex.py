@@ -29,6 +29,7 @@ class PokedexRequestHandler:
 		self.totalNumberOfTypes = 18		## As of generation 6 XY/ORAS
 		self.generationStartPokemon = [1, 152, 252, 387, 494, 650, 722]	# Gen1 - 7
 		self.notFound = 'Not found.'
+		self.responseType = 'in_channel'
 
 		self.colorLookup = {
 			'normal': '#A8A77A', 'fire': '#EE8130', 'water': '#6390F0', 'electric': '#F7D02C',
@@ -37,54 +38,70 @@ class PokedexRequestHandler:
 			'rock': '#B6A136', 'ghost': '#735797', 'dragon': '#6F35FC', 'dark': '#705746',
 			'steel': '#B7B7CE', 'fairy': '#D685AD'}
 
-	def handlePokedexRequest(self, text, response_url):
+	def handlePokedexRequest(self, query, response_url):
 		""" Determine what kind of pokedex request is made, and delegate responsibility accordingly. """
-		self.verboseprint("Handling a /dex request with text: " + text)
+		self.verboseprint("Handling a /dex request with text: " + query)
 		if not self.DB.connectToDatabase():
 			return jsonify({"response_type": "ephemeral", "text": "Database connection error. Alert admin. "})
 
-		text = text.lower()
-		if text == "help":			# Oh snap! A user needs help
+		query = query.lower()
+		if query == "help":			# Oh snap! A user needs help
 			return self.help()
 
 		# Split the input string on whitespace " ".
-		textElements = text.split(" ")
-		keyword = textElements[0]
+		queryElements = query.split(" ")
+		keyword = queryElements[0]
+		
+		# Does the user want this to be a private message?
+		silent = queryElements[-1]
+		if silent.lower() == 'silent':
+			self.responseType = 'ephemeral'
+			self.verboseprint("Response type set to silent!")
+		else:
+			self.responseType = 'in_channel'
 
 		if keyword == keywords.pokeType.value:
 			self.verboseprint("Keyword 'type' found!")
-			return self.handleTypeRequest(textElements[1:])
+			return self.handleTypeRequest(queryElements[1:])
 
 		# Backup plan: 
 		# We don't know it, pokeapi doesn't know it. It's probably not written correctly, or it is not relevant. 
+		self.DB.connection.close()
 		return self.errorReply()
 	
 	def handleTypeRequest(self, query):
 		""" Handles any 'type' request. First we have to check if it is currently known by our DB.
 			If it is known, we have to determine if the data is too old and has to be re-acquired """
 		knownTypes = self.DB.getAllKnownTypes()
-		self.verboseprint("Complete query: " + query[0])
 
-		match = False
-		## Check old data/reaquire
+		## Check for old data (and if we have to reacquire)
 		for knownType in knownTypes:
-			if query[0] == knownType['name'] or query[0] == knownType['id']:
+			if query[0] == knownType.name or query[0] == knownType.id:
 				self.verboseprint("Typematch found!")
-				match = True
+				delta = knownType.updateTime - date.today()
+				self.verboseprint("DELTA: ")
+				self.verboseprint(delta.days)
 
+				if delta.days < self.DataValidity:
+					self.verboseprint("Data is considered valid!")
+					return jsonify(self.formatTypeString(knownType))
+				else:
+					self.DB.deleteOccurence(knownType)
+					self.verboseprint("Data is NOT considered valid!")
+					break
 
+		## If no data has been found we need to query the API for potential new type (or BS)
+		## Also run if data is too old. 
+		self.verboseprint("")
 		queryString = self.baseUrl + 'type/' + query[0]
 		self.verboseprint("Querystring: " + queryString)
-		## If no data has been found we need to query the API for potential new type (or BS)
 		response = self.makePokeAPIRequest(queryString)
 
 		if response != False: # We found something useful
 			typedata = Typedata(response)
 			self.DB.storeType(typedata)
 
-			returnString = self.formatTypeString(typedata)
-
-			return jsonify(returnString)
+			return jsonify(self.formatTypeString(typedata))
 
 		return self.errorReply()
 
@@ -100,31 +117,30 @@ class PokedexRequestHandler:
 	def formatTypeString(self, typedata):
 		""" Formats a type string for pretty return to slack """
 		self.verboseprint("Formatting type string!")
-		header = "*Type:*\n"
+		header = "*Type #" + str(typedata.id) + ":*\n"
 		color = self.colorLookup[typedata.name]
-		responseType = 'in_channel'		# 'ephemeral' for private.
 		fallback = "Type information for " + typedata.name + "."
 
 		## String formatting #pretty #print
-		weaknessString = "*Weaknesses*: "				+ self.stringBuilder(typedata.weaknesses)
-		resistanceString = "*Resistances*: "			+ self.stringBuilder(typedata.resistances)
-		immunityString = "*Immunities*: "				+ self.stringBuilder(typedata.immunities)
-		resistedString = "*Resisted by*: "				+ self.stringBuilder(typedata.halfDamageTo)
+		weaknessString    = "*Weaknesses*: "			+ self.stringBuilder(typedata.weaknesses)
+		resistanceString  = "*Resistances*: "			+ self.stringBuilder(typedata.resistances)
+		immunityString    = "*Immunities*: "			+ self.stringBuilder(typedata.immunities)
+		resistedString    = "*Resisted by*: "			+ self.stringBuilder(typedata.halfDamageTo)
 		ineffectiveString = "*Ineffective against*: "	+ self.stringBuilder(typedata.noDamageTo)
 
 		responseString = weaknessString + resistanceString + immunityString + resistedString + ineffectiveString + "\n"
 
 		response = {
 			"text": header,
+			"response_type": self.responseType,
 			"attachments": [{
 				"fallback": fallback,
 				"color": color,
-				"title": typedata.name.title(),
+				"title": typedata.name.title(), 
 				"title_link": "https://github.com/Sidaroth/PokedexService",
 				"text": responseString,
 				"mrkdwn_in": ['text']
-			}],
-			"response_type": responseType
+			}]
 		}
 
 		return response
@@ -150,10 +166,10 @@ class PokedexRequestHandler:
 		self.verboseprint("Oh snap! A user has request aid!")
 		responseString = "*Help:*\n"
 
-		fallBack = "Example usage: To be continued..."
-		helpString = "Example usage (try either):\n */who's* \n */that* \n */pokemon!?* \n"
-		helpString += "It's PIKACHU\n"
-		helpString += "For more detailed information please see the documentation page by clicking the title."
+		fallBack = "Example usage: ----"
+		helpString = "Example usage:\n */dex type [type]* \n"
+		helpString += "*/dex type [type] silent* for a private query. This is hidden from the chat channel."
+		helpString += "For all queries [type] is interchangable with any type name or id, i.e grass or 12."
 		
 		response = {
 			"text": responseString,
@@ -171,4 +187,4 @@ class PokedexRequestHandler:
 		return jsonify(response)
 
 	def errorReply(self):
-		return jsonify({"response_type": "in_channel", "text": "Your query does not match any currently known pokemon, types or abilities! Try /dex help for more information."})
+		return jsonify({"response_type": "ephemeral", "text": "Your query does not match any currently known pokemon, types or abilities! Try /dex help for more information."})

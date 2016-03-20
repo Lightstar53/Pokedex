@@ -13,6 +13,7 @@ class DatabaseHandler:
 		self.verboseprint = print if verbose else lambda *a, **k: None
 		self.DBUser = ""
 		self.DBPw = ""
+		self.connection = None
 		self.loadDatabaseConnectionInfo()
 
 		self.typeTableHeaders = ['id', 'name', 'immunities', 'resistances', 'weaknesses', 'halfdamageto', 'nodamageto', 'updatetime']
@@ -39,7 +40,7 @@ class DatabaseHandler:
 	def connectToDatabase(self):
 		""" Establish a connection to the postgresql database """
 		try:
-			connection = psycopg2.connect(dbname='pokedex', user=self.DBUser, host='localhost', password=self.DBPw)
+			self.connection = psycopg2.connect(dbname='pokedex', user=self.DBUser, host='localhost', password=self.DBPw)
 			self.verboseprint("Succesfully connected to database!")
 			return True
 		except psycopg2.Error as exception:
@@ -47,15 +48,42 @@ class DatabaseHandler:
 			self.verboseprint(exception)
 			return False
 
+	def deleteOccurence(self, typedata):
+		""" Deletes an occurence of typedata from the database, if it exists """
+		cursor = self.connection.cursor()
+		SQL = "DELETE FROM types WHERE name=%s AND id=%s"
+		data = [typedata.name, typedata.id]
+
+		cursor.execute(SQL, data)
+		self.connection.commit()
+		cursor.close()
+
 	def storeType(self, typedata):
 		""" Stores a type with the provided information in the database """
-		
-		
+		cursor = self.connection.cursor()
+		SQL = """INSERT INTO types (id, name, immunities, 
+		resistances, weaknesses, halfdamageto, nodamageto, updatetime) 
+		VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+		# Is there a better way?	                                 
+		data = [typedata.id, typedata.name, typedata.immunities, typedata.resistances, typedata.weaknesses,
+				typedata.halfDamageTo, typedata.noDamageTo, typedata.updateTime]
+
+		cursor.execute(SQL, data)
+		self.connection.commit()
+		cursor.close()
+
+
 	def getAllKnownTypes(self):
-		""" Returns a dictionary of all known types in the database """
+		""" Returns a list of 'typedata' elements for all known types in the database """
 		knownTypes = []
 
-		## insert SQL here
+		cursor = self.connection.cursor()
+		cursor.execute("SELECT * FROM types")
+		temp = cursor.fetchall()
+		for dbTuple in temp:
+			knownType = Typedata()
+			knownType.id, knownType.name, knownType.immunities, knownType.resistances, knownType.weaknesses, knownType.halfdamageto, knownType.nodamageto, knownType.updatetime = dbTuple
+			knownTypes.append(knownType)
 
 		return knownTypes
 
