@@ -90,6 +90,13 @@ class DatabaseHandler:
 		""" Returns a dictionary of all known pokemon in the database """
 		knownPokemon = []
 
+		cursor = self.connection.cursor()
+		cursor.execute("SELECT * FROM pokemon")
+		temp = cursor.fetchall()
+
+		#for dbTuple in temp:
+		#	knownPokemon = Pokedata()
+
 		return knownPokemon
 
 	def getAllKnownAbilities(self):

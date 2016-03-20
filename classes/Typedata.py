@@ -17,6 +17,7 @@ class Typedata:
 		self.updateTime = None
 		self.name = ""
 		self.id = 0
+		self.updateTime = date.today()
 		
 		if response != None:
 			self.name = response['name']
@@ -37,7 +38,7 @@ class Typedata:
 			for ineffective in response['damage_relations']['no_damage_to']:
 				self.noDamageTo.append(ineffective['name']) 
 
-		self.updateTime = date.today()
+		
 		self.sortLists()
 
 	def sortLists(self):

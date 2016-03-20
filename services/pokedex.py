@@ -64,11 +64,25 @@ class PokedexRequestHandler:
 			self.verboseprint("Keyword 'type' found!")
 			return self.handleTypeRequest(queryElements[1:])
 
+		elif keyword == keywords.pokemon.value:
+			self.verboseprint("Keyword 'pokemon' found!")
+			return self.handlePokemonRequest(queryElements[1:])
+
+		else:
+			self.verboseprint("Keyword is unknown.")
+
 		# Backup plan: 
 		# We don't know it, pokeapi doesn't know it. It's probably not written correctly, or it is not relevant. 
 		self.DB.connection.close()
 		return self.errorReply()
 	
+	def handlePokemonRequest(self, query):
+		""" Handles any 'pokemon' request. First we have to check if it is currently known by our DB.
+			If it is known, we have to determine if the data is too old and has to be re-acquired """
+
+		knownPokemon = self.DB.getAllKnownPokemon()
+
+
 	def handleTypeRequest(self, query):
 		""" Handles any 'type' request. First we have to check if it is currently known by our DB.
 			If it is known, we have to determine if the data is too old and has to be re-acquired """
@@ -79,8 +93,6 @@ class PokedexRequestHandler:
 			if query[0] == knownType.name or query[0] == str(knownType.id):
 				self.verboseprint("Typematch found!")
 				delta = knownType.updateTime - date.today()
-				self.verboseprint("DELTA: ")
-				self.verboseprint(delta.days)
 
 				if delta.days < self.DataValidity:
 					self.verboseprint("Data is considered valid!")
@@ -168,7 +180,7 @@ class PokedexRequestHandler:
 
 		fallBack = "Example usage: ----"
 		helpString = "Example usage:\n */dex type [type]* \n"
-		helpString += "*/dex type [type] silent* for a private query. This is hidden from the chat channel."
+		helpString += "*/dex type [type] silent* for a private query. This is hidden from the chat channel.\n"
 		helpString += "For all queries [type] is interchangable with any type name or id, i.e grass or 12."
 		
 		response = {
