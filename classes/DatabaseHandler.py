@@ -15,9 +15,7 @@ class DatabaseHandler:
 		self.DBPw = ""
 		self.connection = None
 		self.loadDatabaseConnectionInfo()
-
 		self.typeTableHeaders = ['id', 'name', 'immunities', 'resistances', 'weaknesses', 'halfdamageto', 'nodamageto', 'updatetime']
-
 
 	def loadDatabaseConnectionInfo(self):
 		""" Reads database connection information from hidden file """	## Consider environment variable
@@ -72,7 +70,6 @@ class DatabaseHandler:
 		self.connection.commit()
 		cursor.close()
 
-
 	def getAllKnownTypes(self):
 		""" Returns a list of 'typedata' elements for all known types in the database """
 		knownTypes = []
@@ -80,6 +77,8 @@ class DatabaseHandler:
 		cursor = self.connection.cursor()
 		cursor.execute("SELECT * FROM types")
 		temp = cursor.fetchall()
+
+		# For each row, create a corresponding Typedata object. 
 		for dbTuple in temp:
 			knownType = Typedata()
 			knownType.id, knownType.name, knownType.immunities, knownType.resistances, knownType.weaknesses, knownType.halfdamageto, knownType.nodamageto, knownType.updatetime = dbTuple

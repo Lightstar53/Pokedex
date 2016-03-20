@@ -76,7 +76,7 @@ class PokedexRequestHandler:
 
 		## Check for old data (and if we have to reacquire)
 		for knownType in knownTypes:
-			if query[0] == knownType.name or query[0] == knownType.id:
+			if query[0] == knownType.name or query[0] == str(knownType.id):
 				self.verboseprint("Typematch found!")
 				delta = knownType.updateTime - date.today()
 				self.verboseprint("DELTA: ")
