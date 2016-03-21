@@ -4,11 +4,12 @@
 
 from flask import jsonify
 from enum import Enum, unique
-from datetime import date
+from datetime import date, datetime
 import requests
 
 from classes.DatabaseHandler import DatabaseHandler
 from classes.Typedata import Typedata
+from classes.Pokedata import Pokedata
 
 @unique
 class keywords(Enum):
@@ -16,6 +17,12 @@ class keywords(Enum):
 	pokemon = 'pokemon'
 	dexList = 'list'
 	ability = 'ability'
+
+@unique
+class occurenceType(Enum):
+	pokeType = 'types'
+	pokemon = 'pokemon'
+	ability = 'abilities'
 
 class PokedexRequestHandler:
 	def __init__(self, verbose=False):
@@ -68,25 +75,64 @@ class PokedexRequestHandler:
 			self.verboseprint("Keyword 'pokemon' found!")
 			return self.handlePokemonRequest(queryElements[1:])
 
-		else:
+		else:			## Unknown keyword, assume pokemon
 			self.verboseprint("Keyword is unknown.")
+			return self.handlePokemonRequest(queryElements)
 
-		# Backup plan: 
-		# We don't know it, pokeapi doesn't know it. It's probably not written correctly, or it is not relevant. 
-		self.DB.connection.close()
-		return self.errorReply()
-	
 	def handlePokemonRequest(self, query):
 		""" Handles any 'pokemon' request. First we have to check if it is currently known by our DB.
 			If it is known, we have to determine if the data is too old and has to be re-acquired """
 
+		## Exceptions
+		if query[0] == 'deoxys':
+			query[0] = 'deoxys-normal'
+		elif query[0] == 'keldeo':
+			query[0] = 'keldeo-ordinary'
+
 		knownPokemon = self.DB.getAllKnownPokemon()
 
+		## Check for old data (and if we have to reacquire)
+		for known in knownPokemon:
+			if query[0] == known.name or query[0] == str(known.id):
+				self.verboseprint("Pokemon found in DB!")
+				delta = known.updatetime - date.today()
 
-	def handleTypeRequest(self, query):
+				if delta.days < self.DataValidity:
+					self.verboseprint("Data is considered valid")
+					return jsonify(self.formatPokeString(known))
+				else:
+					self.DB.deleteOccurence(known, occurenceType.pokemon.value)
+					self.verboseprint("Data is NOT considered valid")
+					break
+
+		## If no data, or too old data, query the API for info.
+		queryString = self.baseUrl + 'pokemon/' + query[0]
+		response = self.makePokeAPIRequest(queryString)
+
+		if response != False:
+			pokedata = Pokedata(response)
+			internal = True
+
+			## Somehow deal with type information from type table... 
+			types = []
+			for pokeType in pokedata.types:
+				queryElements = []
+				queryElements.append(pokeType)
+				types.append(self.handleTypeRequest(queryElements, internal))
+
+			pokedata.determineTypeEffectiveness(types)
+			self.DB.storePokemon(pokedata)
+
+			return jsonify(self.formatPokeString(pokedata))
+
+		return self.errorReply()
+
+	def handleTypeRequest(self, query, internal=False):
 		""" Handles any 'type' request. First we have to check if it is currently known by our DB.
 			If it is known, we have to determine if the data is too old and has to be re-acquired """
 		knownTypes = self.DB.getAllKnownTypes()
+		if internal:
+			self.verboseprint("Handling an internal typeRequest: " + str(query))
 
 		## Check for old data (and if we have to reacquire)
 		for knownType in knownTypes:
@@ -96,22 +142,25 @@ class PokedexRequestHandler:
 
 				if delta.days < self.DataValidity:
 					self.verboseprint("Data is considered valid!")
+					if internal:
+						return knownType
 					return jsonify(self.formatTypeString(knownType))
 				else:
-					self.DB.deleteOccurence(knownType)
+					self.DB.deleteOccurence(knownType, occurenceType.pokeType.value)
 					self.verboseprint("Data is NOT considered valid!")
 					break
 
 		## If no data has been found we need to query the API for potential new type (or BS)
 		## Also run if data is too old. 
-		self.verboseprint("")
 		queryString = self.baseUrl + 'type/' + query[0]
-		self.verboseprint("Querystring: " + queryString)
 		response = self.makePokeAPIRequest(queryString)
 
 		if response != False: # We found something useful
 			typedata = Typedata(response)
 			self.DB.storeType(typedata)
+
+			if internal:
+				return typedata()
 
 			return jsonify(self.formatTypeString(typedata))
 
@@ -119,11 +168,61 @@ class PokedexRequestHandler:
 
 	def makePokeAPIRequest(self, queryString ):
 		""" Makes a request to pokeAPI with given argument """
+		self.verboseprint("Querystring: " + queryString)
+		timestamp = datetime.now()
+		self.verboseprint(datetime.strftime(timestamp, '%H:%M:%S') + ": Making request")
 		response = requests.get(queryString).json()
+		timestamp2 = datetime.now()
+		self.verboseprint(datetime.strftime(timestamp2, '%H:%M:%S') + ": Request finished.")
+
 		if 'detail' in response.keys() and response['detail'] == self.notFound:
 			self.verboseprint("Seems to be a 404. ")
 			return False
 
+		return response
+
+	def stringBuilder(self, mList):
+		## move internally to typedata?
+		count = 0
+		responseString = ""
+
+		if len(mList) == 0:
+			responseString += "None.\n"
+
+		for thing in mList:
+			responseString += thing.title()
+			count += 1
+			if count == len(mList):
+				responseString += ".\n"
+			else:
+				responseString += ", "
+		return responseString
+
+	def formatPokeString(self, pokedata):
+		""" Formats a 'pokemon' string for pretty return to slack """
+		self.verboseprint("Formatting a pokemon string")
+		header = "*Pokemon #" + str(pokedata.id) +":*\n"
+		color = self.colorLookup[pokedata.types[0]]
+		fallback = "Pokemon information for " + pokedata.name + "."
+
+		## HOW TO FORMAT THIS SHITE....
+
+		responseString = pokedata.buildResponseString()
+
+		response = {
+			"text": header,
+			"response_type": self.responseType,
+			"attachments": [{
+				"fallback": fallback,
+				"color": color, 
+				"title": pokedata.name.title(),
+				"title_link": "https://github.com/Sidaroth/PokedexService",
+				"text": responseString,
+				"mrkdwn_in": ['text'],
+				"thumb_url": pokedata.sprite
+			}]
+		}
+		
 		return response
 
 	def formatTypeString(self, typedata):
@@ -141,6 +240,7 @@ class PokedexRequestHandler:
 		ineffectiveString = "*Ineffective against*: "	+ self.stringBuilder(typedata.noDamageTo)
 
 		responseString = weaknessString + resistanceString + immunityString + resistedString + ineffectiveString + "\n"
+		responseString += "\nData was last updated: " + str(typedata.updateTime) + "\n"
 
 		response = {
 			"text": header,
@@ -157,31 +257,19 @@ class PokedexRequestHandler:
 
 		return response
 
-	def stringBuilder(self, mList):
-		count = 0
-		responseString = ""
-
-		if len(mList) == 0:
-			responseString += "None.\n"
-
-		for thing in mList:
-			responseString += thing.title()
-			count += 1
-			if count == len(mList):
-				responseString += ".\n"
-			else:
-				responseString += ", "
-		return responseString
-
 	def help(self):
 		""" Displays helpful information privately to the user on request """
 		self.verboseprint("Oh snap! A user has request aid!")
 		responseString = "*Help:*\n"
 
 		fallBack = "Example usage: ----"
-		helpString = "Example usage:\n */dex type [type]* \n"
+		helpString =  "Example usage:\n"
+		helpString += "*/dex [pokemon]* \n"
+		helpString += "*/dex type [type]* \n"
+		helpString += "*/dex pokemon [pokemon]* \n"
 		helpString += "*/dex type [type] silent* for a private query. This is hidden from the chat channel.\n"
-		helpString += "For all queries [type] is interchangable with any type name or id, i.e grass or 12."
+		helpString += "For all queries [type] or [pokemon] is interchangable with any name or id, i.e grass and 12, or bulbsaur and 1.\n"
+		helpString += "Usage of the 'silent' flag is also available for *all* commands.\n"
 		
 		response = {
 			"text": responseString,
@@ -199,4 +287,4 @@ class PokedexRequestHandler:
 		return jsonify(response)
 
 	def errorReply(self):
-		return jsonify({"response_type": "ephemeral", "text": "Your query does not match any currently known pokemon, types or abilities! Try /dex help for more information."})
+		return jsonify({"response_type": "ephemeral", "text": "Your query does not match any currently known pokemon! Try /dex help for more information."})

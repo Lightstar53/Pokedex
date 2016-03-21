@@ -2,7 +2,7 @@
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
 # Project: https://github.com/Sidaroth/PokedexService/
 
-from datetime import date
+from datetime import date, datetime
 
 class Typedata:
 	""" Container for type data """

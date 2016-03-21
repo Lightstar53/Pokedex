@@ -4,6 +4,7 @@
 import psycopg2
 import os
 from classes.Typedata import Typedata
+from classes.Pokedata import Pokedata
 
 class DatabaseHandler:
 	""" Handles all things database """
@@ -16,6 +17,7 @@ class DatabaseHandler:
 		self.connection = None
 		self.loadDatabaseConnectionInfo()
 		self.typeTableHeaders = ['id', 'name', 'immunities', 'resistances', 'weaknesses', 'halfdamageto', 'nodamageto', 'updatetime']
+
 
 	def loadDatabaseConnectionInfo(self):
 		""" Reads database connection information from hidden file """	## Consider environment variable
@@ -46,18 +48,20 @@ class DatabaseHandler:
 			self.verboseprint(exception)
 			return False
 
-	def deleteOccurence(self, typedata):
+	def deleteOccurence(self, data, occType):
 		""" Deletes an occurence of typedata from the database, if it exists """
 		cursor = self.connection.cursor()
-		SQL = "DELETE FROM types WHERE name=%s AND id=%s"
-		data = [typedata.name, typedata.id]
 
+		SQL = "DELETE FROM " + occType + " WHERE name=%s AND id=%s"
+
+		data = [data.name, data.id]
 		cursor.execute(SQL, data)
 		self.connection.commit()
 		cursor.close()
 
 	def storeType(self, typedata):
 		""" Stores a type with the provided information in the database """
+		self.verboseprint("Storing type: '" + typedata.name + "' in DB")
 		cursor = self.connection.cursor()
 		SQL = """INSERT INTO types (id, name, immunities, 
 		resistances, weaknesses, halfdamageto, nodamageto, updatetime) 
@@ -70,37 +74,54 @@ class DatabaseHandler:
 		self.connection.commit()
 		cursor.close()
 
+	def storePokemon(self, pd):
+		""" Stores a pokemon with the provided information in the database """
+		self.verboseprint("Storing pokemon: '" + pd.name + "' in DB")
+		cursor = self.connection.cursor()
+		SQL = """INSERT INTO pokemon(id, name, sprite, types, weaknesses, immunities, resistances, hiddens, updatetime)
+		VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+
+		data = [pd.id, pd.name, pd.sprite, pd.types, pd.weaknesses, pd.immunities,
+		 		pd.resistances, pd.hiddenAbilities, pd.updatetime]
+
+		cursor.execute(SQL, data)
+		self.connection.commit()
+		cursor.close()
+
 	def getAllKnownTypes(self):
-		""" Returns a list of 'typedata' elements for all known types in the database """
+		""" Returns a list of 'typedata' objects for all known types in the database """
 		knownTypes = []
 
 		cursor = self.connection.cursor()
 		cursor.execute("SELECT * FROM types")
 		temp = cursor.fetchall()
 
-		# For each row, create a corresponding Typedata object. 
+		# For each row, create a corresponding Typedata object with a long ass tuple unpack. 
 		for dbTuple in temp:
-			knownType = Typedata()
-			knownType.id, knownType.name, knownType.immunities, knownType.resistances, knownType.weaknesses, knownType.halfdamageto, knownType.nodamageto, knownType.updatetime = dbTuple
-			knownTypes.append(knownType)
+			known = Typedata()
+			known.id, known.name, known.immunities, known.resistances, known.weaknesses, known.halfdamageto, known.nodamageto, known.updatetime = dbTuple
+			knownTypes.append(known)
 
 		return knownTypes
 
 	def getAllKnownPokemon(self):
-		""" Returns a dictionary of all known pokemon in the database """
+		""" Returns a list of 'pokedata' objects for all known pokemon in the database """
 		knownPokemon = []
 
 		cursor = self.connection.cursor()
 		cursor.execute("SELECT * FROM pokemon")
 		temp = cursor.fetchall()
 
-		#for dbTuple in temp:
-		#	knownPokemon = Pokedata()
+		# For each row, create a corresponding pokedata object with a long ass tuple unpack.
+		for dbTuple in temp:
+			known = Pokedata()
+			known.id, known.name, known.sprite, known.types, known.weaknesses, known.immunities, known.resistances, known.hiddenAbilities, known.updatetime = dbTuple
+			knownPokemon.append(known)
 
 		return knownPokemon
 
 	def getAllKnownAbilities(self):
-		""" Returns a dictionary of all known abilities in the database """
+		""" Returns a list of 'AbilityData' objects for all known pokemon in the database """
 		knownAbilities = []
 
 		return knownAbilities
