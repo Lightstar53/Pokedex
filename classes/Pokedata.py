@@ -8,8 +8,6 @@ from collections import Counter
 class Pokedata:
 	"""Container for all pokemon data"""
 
-	
-
 	def __init__(self, response=None):
 		"""Constructor/Object model"""
 		self.spriteURL = "http://img.pokemondb.net/artwork/"
@@ -111,9 +109,9 @@ class Pokedata:
 		weaknessString = ""
 		length = len(self.weaknesses)
 		if length == 0:
-			weaknessesString = "It is *not* weak against damage of any type.\n"
+			weaknessString = "It is _*not*_ weak against damage of any type.\n"
 		elif length == 1:
-			weaknessesString = "It takes double damage from _" + self.weaknesses[0] + "_ type attacks.\n"
+			weaknessString = "It takes _*double*_ damage from _" + self.weaknesses[0] + "_ type attacks.\n"
 		else:
 			weaknessString = "It takes _*increased*_ damage from " 
 
@@ -142,9 +140,9 @@ class Pokedata:
 		resistanceString = ""
 		length = len(self.resistances)
 		if length == 0:
-			resistanceString = "It it *not* resistant to damage of any type.\n"
+			resistanceString = "It it _*not*_ resistant to damage of any type.\n"
 		elif length == 1:
-			resistanceString = "It takes halved damage from _" + self.resistances[0] + "_ type attacks.\n"
+			resistanceString = "It takes _*halved*_ damage from _" + self.resistances[0] + "_ type attacks.\n"
 		else:
 			resistanceString = "It takes _*decreased*_ damage from "
 
@@ -170,11 +168,10 @@ class Pokedata:
 		response += resistanceString
 
 		# immunities
-		checked = []
 		immunityString = ""
 		length = len(self.immunities)
 		if length == 0:
-			immunityString = "It is not immune to damage of any type.\n"
+			immunityString = "It is *not* immune to damage of any type.\n"
 		elif length == 1:
 			immunityString = "It is immune to damage from " + self.immunities[0] + " type moves.\n"
 		else:
