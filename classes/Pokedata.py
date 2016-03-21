@@ -17,7 +17,8 @@ class Pokedata:
 		self.types = []					
 		self.weaknesses = []			
 		self.immunities = []			
-		self.resistances = []			
+		self.resistances = []
+		self.abilities = []			
 		self.hiddenAbilities = []		
 		self.locations = []				
 		self.updatetime = date.today()
@@ -42,8 +43,9 @@ class Pokedata:
 
 			for ability in response['abilities']:
 				if ability['is_hidden'] == True:
-					print("hidden ability found")
 					self.hiddenAbilities.append(ability['ability']['name'])
+				else:
+					self.abilities.append(ability['ability']['name'])
 
 			# Do something about locations, species, breed, evolution chains?
 
@@ -194,26 +196,47 @@ class Pokedata:
 							immunityString += ", "
 		response += immunityString
 
-		# abillities
-		abilityString = "It has "
+		# hidden abilities
+		hiddenString = "It has "
 		length = len(self.hiddenAbilities)
 		if length == 0:
-			abilityString += "*no* possible hidden abillities.\n"
+			hiddenString += "*no* possible hidden abillities.\n"
 		elif length == 1:
-			abilityString += "the following potential hidden ability: "
+			hiddenString += "the following potential hidden ability: "
 		else:
-			abilityString += "the following potential hidden abilities: "
+			hiddenString += "the following potential hidden abilities: "
 
 		count = 0
-		for ability in self.hiddenAbilities:
+		for hidden in self.hiddenAbilities:
+			hiddenString += hidden.title()
+			count += 1
+			if count == length:
+				hiddenString += ".\n"
+			else:
+				hiddenString += ", "
+		response += hiddenString
+
+		# non-hidden abilities
+		abilityString = "It has "
+		length = len(self.abilities)
+		if length == 0:
+			abilityString += "*no* possible non-hidden abilities.\n"
+		elif length == 1:
+			abilityString += "the following potential non-hidden ability: "
+		else:
+			abilityString += "the following potential non-hidden abilities: "
+
+		count = 0
+		for ability in self.abilities:
 			abilityString += ability.title()
 			count += 1
+
 			if count == length:
 				abilityString += ".\n"
 			else:
 				abilityString += ", "
 		response += abilityString
-
+ 
 		# Additional
 		response += "\nTypes marked in *bold* signify double effect (4x weakness or 1/4x resistance).\n"
 		response += "Data was last updated: " + str(self.updatetime) + "\n"

@@ -78,11 +78,11 @@ class DatabaseHandler:
 		""" Stores a pokemon with the provided information in the database """
 		self.verboseprint("Storing pokemon: '" + pd.name + "' in DB")
 		cursor = self.connection.cursor()
-		SQL = """INSERT INTO pokemon(id, name, sprite, types, weaknesses, immunities, resistances, hiddens, updatetime)
-		VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+		SQL = """INSERT INTO pokemon(id, name, sprite, types, weaknesses, immunities, resistances, hiddens, abilities, updatetime)
+		VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
 
 		data = [pd.id, pd.name, pd.sprite, pd.types, pd.weaknesses, pd.immunities,
-		 		pd.resistances, pd.hiddenAbilities, pd.updatetime]
+		 		pd.resistances, pd.hiddenAbilities, pd.abilities, pd.updatetime]
 
 		cursor.execute(SQL, data)
 		self.connection.commit()
@@ -115,13 +115,13 @@ class DatabaseHandler:
 		# For each row, create a corresponding pokedata object with a long ass tuple unpack.
 		for dbTuple in temp:
 			known = Pokedata()
-			known.id, known.name, known.sprite, known.types, known.weaknesses, known.immunities, known.resistances, known.hiddenAbilities, known.updatetime = dbTuple
+			known.id, known.name, known.sprite, known.types, known.weaknesses, known.immunities, known.resistances, known.hiddenAbilities, known.abilities, known.updatetime = dbTuple
 			knownPokemon.append(known)
 
 		return knownPokemon
 
-	def getAllKnownAbilities(self):
-		""" Returns a list of 'AbilityData' objects for all known pokemon in the database """
+	def getAllKnownMoves(self):
+		""" Returns a list of 'move' objects for all known pokemon in the database """
 		knownAbilities = []
 
 		return knownAbilities
