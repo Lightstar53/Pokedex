@@ -14,7 +14,9 @@ example command (/isitup google)
 
 -- Considering adding automagical .com if left out to try anyway, but not a priority.
 
-Intended usage when finished (to be updated):
+Example usage (to be updated):
+![alt tag](http://puu.sh/nPhoX/ab68da452a.png)
+
 /dex and /pokedex are equal
 
 /dex 123
@@ -23,7 +25,6 @@ Intended usage when finished (to be updated):
 * Weaknesses: Electric, Fire, Flying, Ice, Rock x 4
 * Resistances: Bug, Grass x 1/4, Fighting x 1/4
 * Immunities: Ground
-* Bulbapedia: http://bulbapedia.bulbagarden.net/wiki/Scyther_(Pok%C3%A9mon)
 
 /dex Scyther
 * Pokemon #123 - Scyther
@@ -31,19 +32,11 @@ Intended usage when finished (to be updated):
 * Weaknesses: Electric, Fire, Flying, Ice, Rock x 4
 * Resistances: Bug, Grass x 1/4, Fighting x 1/4
 * Immunities: Ground
-* Bulbapedia: http://bulbapedia.bulbagarden.net/wiki/Scyther_(Pok%C3%A9mon)
-
-/pokedex Scyther
-* Pokemon #123 - Scyther
-* Type(s): Flying, Bug
-* Weaknesses: Electric, Fire, Flying, Ice, Rock x 4
-* Resistances: Bug, Grass x 1/4, Fighting x 1/4
-* Immunities: Ground
-* Bulbapedia: http://bulbapedia.bulbagarden.net/wiki/Scyther_(Pok%C3%A9mon)
 
 /pokedex small 123
 * Pokemon #123 - Scyther
 * Type(s): Flying, Bug
+
 
 ### Installation / Requirements
 * Web server capable of handling python
@@ -78,10 +71,19 @@ Example content (not accurate):
 CREATE TABLE pokemon (
 id int,
 name text,
+sprite text,
+types text[],
+weaknesses text[],
 immunities text[],
 resistances text[],
-weaknesses text[],
+hiddens text[],
+abilities text[],
 updateTime date);
 ```
+
 Example content (not accurate):
-To come...
+
+| id  | name   | sprite | types | weaknesses | resistances  | immunities | hiddens |  abilities | updateTime  |
+| --- | ------ | ------ | ----- | ---------- | ------------ | ---------- | ------- | ---------- | ----------- |
+| 1 | bulbasaur | http://example.com | {poison, grass} | {normal, dark} | {psychic, water} | {electric} | {chlorophyll} | {overgrow} | 2016-03-12 |
+| 25 | pikachu | http://example.com| {electric} |{normal, electric} | {normal} | {water} | {lightning-rod} | {static} | 2016-03-17 |
