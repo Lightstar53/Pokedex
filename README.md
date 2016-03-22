@@ -27,7 +27,10 @@ Example usage (to be updated):
 * Resistances: Bug, Grass x 1/4, Fighting x 1/4
 * Immunities: Ground
 
+
 /dex litleo
+
+An example pokemon query, '/pokedex pokemon LITLEO' would produce the same result. 
 !['/dex litleo' example](http://puu.sh/nPhoX/ab68da452a.png)
 
 /pokedex small 123
@@ -36,6 +39,7 @@ Example usage (to be updated):
 
 /dex type grass silent
 * The silent flag makes it private, neither the query or the response is shown to other users. 
+
 !['/dex type grass silent' example](http://puu.sh/nPiu2/1e52a2abd4.png)
 
 ### Installation / Requirements
