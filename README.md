@@ -10,12 +10,13 @@ example command (/isitup google.com):
 example command (/isitup google)
 * Whoops, isitup does not think google is a valid website, supply both domainname *AND* suffix (i.e amazon.com)
 
-![alt tag](http://puu.sh/nIXP1/677cbcbfe9.png)
+!['/isitup' example](http://puu.sh/nIXP1/677cbcbfe9.png)
 
 -- Considering adding automagical .com if left out to try anyway, but not a priority.
 
 Example usage (to be updated):
-![alt tag](http://puu.sh/nPhoX/ab68da452a.png)
+/dex help
+!['/dex help' example](http://puu.sh/nPiJV/c327257428.png)
 
 /dex and /pokedex are equal
 
@@ -26,17 +27,20 @@ Example usage (to be updated):
 * Resistances: Bug, Grass x 1/4, Fighting x 1/4
 * Immunities: Ground
 
-/dex Scyther
-* Pokemon #123 - Scyther
-* Type(s): Flying, Bug
-* Weaknesses: Electric, Fire, Flying, Ice, Rock x 4
-* Resistances: Bug, Grass x 1/4, Fighting x 1/4
-* Immunities: Ground
+
+/dex litleo
+
+An example pokemon query, '/pokedex pokemon LITLEO' would produce the same result. 
+!['/dex litleo' example](http://puu.sh/nPhoX/ab68da452a.png)
 
 /pokedex small 123
 * Pokemon #123 - Scyther
 * Type(s): Flying, Bug
 
+/dex type grass silent
+* The silent flag makes it private, neither the query or the response is shown to other users. 
+
+!['/dex type grass silent' example](http://puu.sh/nPiu2/1e52a2abd4.png)
 
 ### Installation / Requirements
 * Web server capable of handling python
