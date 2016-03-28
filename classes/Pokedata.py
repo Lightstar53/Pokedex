@@ -170,12 +170,13 @@ class Pokedata:
 		response += resistanceString
 
 		# immunities
+		checked = []
 		immunityString = ""
 		length = len(self.immunities)
 		if length == 0:
 			immunityString = "It is *not* immune to damage of any type.\n"
 		elif length == 1:
-			immunityString = "It is immune to damage from " + self.immunities[0] + " type moves.\n"
+			immunityString = "It is immune to damage from _" + self.immunities[0] + "_ type moves.\n"
 		else:
 			immunityString = "It is immune to damage from "
 			count = 0

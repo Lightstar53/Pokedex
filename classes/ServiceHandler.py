@@ -26,6 +26,7 @@ class ServiceHandler:
 		## Error 'codes'
 		self.TOKEN_MISMATCH = 'tokenMismatch'
 		self.INVALID_COMMAND = 'invalidCommand'
+		self.verboseprint("popluating DB")
 		self.verboseprint("Awaiting requests...")
 
 	def loadValidTokens(self):		## Consider environment variable

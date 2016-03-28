@@ -45,9 +45,26 @@ class PokedexRequestHandler:
 			'rock': '#B6A136', 'ghost': '#735797', 'dragon': '#6F35FC', 'dark': '#705746',
 			'steel': '#B7B7CE', 'fairy': '#D685AD'}
 
-	def handlePokedexRequest(self, query, response_url):
+	def populateDB(self):
+		""" Populate the database with information """
+		self.populating = True
+
+		timestamp = datetime.now()
+
+		for i in range(1, self.totalNumberOfPokemon + 1):
+			self.handlePokedexRequest(str(i))
+
+		for i in range(1, self.totalNumberOfTypes + 1):
+			self.handlePokedexRequest("type" + str(i))
+
+		timestamp2 = datetime.now()
+		self.verboseprint("Populate took from: " + datetime.strftime(timestamp, '%H:%M:%S') 
+						+ " to: " + datetime.strftime(timestamp2, '%H:%M:%S'))
+
+	def handlePokedexRequest(self, query, response_url=None):
 		""" Determine what kind of pokedex request is made, and delegate responsibility accordingly. """
-		self.verboseprint("Handling a /dex request with text: " + query)
+		timestamp = datetime.now()
+		self.verboseprint(datetime.strftime(timestamp, '%H:%M:%S') + ": Handling a /dex request with text: " + query)
 		if not self.DB.connectToDatabase():
 			return jsonify({"response_type": "ephemeral", "text": "Database connection error. Alert admin. "})
 

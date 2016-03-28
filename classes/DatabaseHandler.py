@@ -99,7 +99,7 @@ class DatabaseHandler:
 		# For each row, create a corresponding Typedata object with a long ass tuple unpack. 
 		for dbTuple in temp:
 			known = Typedata()
-			known.id, known.name, known.immunities, known.resistances, known.weaknesses, known.halfdamageto, known.nodamageto, known.updatetime = dbTuple
+			known.id, known.name, known.immunities, known.resistances, known.weaknesses, known.halfDamageTo, known.noDamageTo, known.updateTime = dbTuple
 			knownTypes.append(known)
 
 		return knownTypes
