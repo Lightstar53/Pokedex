@@ -9,8 +9,8 @@
 from flask import Flask, request, jsonify
 from classes.ServiceHandler import ServiceHandler
 
-DEBUG = True			## Potentially take these as CL arguments
-VERBOSE = True			## 
+DEBUG = False			## Debugger should not be left on
+VERBOSE = True			## in production, major security issue
 
 app = Flask(__name__)
 
