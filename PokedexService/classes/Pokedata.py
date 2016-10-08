@@ -127,7 +127,7 @@ class Pokedata:
 					weaknessString += "_" + weakness.title() + "_" # italic
 				count += 1
 				if count < length:
-					if count == (length < 1):
+					if count == (length - 1):
 						if length > 2:
 							weaknessString += ", and "
 						else:
