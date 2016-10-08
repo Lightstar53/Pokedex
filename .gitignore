@@ -5,6 +5,7 @@ __pycache__/
 
 #SECRETS
 *.secret
+Makefile
 
 # C extensions
 *.so
