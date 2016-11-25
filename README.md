@@ -1,18 +1,11 @@
 ### Purpose and Usage
 
-Service to run on a server using Flask with python and nginx for communication with a slack/discord bot for slash commands in channels.
+Service to run on a server using Flask and python communicating with a slack/discord bot for slash commands in channels.
 
-for testing purposes functionality for /isitup that queries isitup.org's API has also been added.
+for testing purposes functionality for /isitup that queries isitup.org's API has also been added. (Was added to check for slack connectivity early on. We won't remove it because why not.)
 example command (/isitup google.com):
 * Yay, google.com appears to be up!
 * Nope, google.com appears to be down!
-
-example command (/isitup google)
-* Whoops, isitup does not think google is a valid website, supply both domainname *AND* suffix (i.e amazon.com)
-
-![alt tag](http://puu.sh/nIXP1/677cbcbfe9.png)
-
--- Considering adding automagical .com if left out to try anyway, but not a priority.
 
 Example usage (to be updated):
 ![alt tag](http://puu.sh/nPhoX/ab68da452a.png)
