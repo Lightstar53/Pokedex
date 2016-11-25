@@ -1,6 +1,6 @@
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
-# Project: https://github.com/Sidaroth/PokedexService/
+# Project: https://github.com/Sidaroth/Pokedex/
 
 from flask import jsonify, request
 from PokedexService.services.pokedex import PokedexRequestHandler
@@ -69,7 +69,6 @@ class ServiceHandler:
 		token = request.form['token']
 		if token not in self.VALID_TOKENS:
 			self.verboseprint("Mismatched token: " + token)
-			self.verboseprint("VALID_TOKENS are: " + self.VALID_TOKENS)
 			return errorReply(TOKEN_MISMATCH)
 
 		return self.delegate(request.form['command'], request.form['text'], request.form['response_url'])

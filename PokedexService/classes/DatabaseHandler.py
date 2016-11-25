@@ -1,13 +1,16 @@
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
-# Project: https://github.com/Sidaroth/PokedexService/
+# Project: https://github.com/Sidaroth/Pokedex/
 import psycopg2
 import os
 from PokedexService.classes.Typedata import Typedata
 from PokedexService.classes.Pokedata import Pokedata
 
 class DatabaseHandler:
-	""" Handles all things database """
+	""" Handles all things database
+		
+		We want to cache data on our end to avoid taxing the servers (or wait for their reply).
+	"""
 
 	def __init__(self, verbose=False):
 		""" Object model / Constructor """

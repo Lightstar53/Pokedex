@@ -1,6 +1,6 @@
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
-# Project: https://github.com/Sidaroth/PokedexService/
+# Project: https://github.com/Sidaroth/Pokedex/
 
 from datetime import date, datetime
 
@@ -9,6 +9,8 @@ class Typedata:
 
 	def __init__(self, response=None):
 		""" Build data structure from API response """
+		self.daysValid = 31		# Number of days the data is considered valid. 
+
 		self.immunities = []
 		self.resistances = []
 		self.weaknesses = []
@@ -49,4 +51,11 @@ class Typedata:
 		self.halfDamageTo.sort()
 		self.noDamageTo.sort()
 
+	def isValid(self): 
+		""" Checks if the data can be considered valid """
+		delta = date.today() - self.updateTime
 
+		if delta.days < self.daysValid: # If valid
+			return True
+		else:
+			return False

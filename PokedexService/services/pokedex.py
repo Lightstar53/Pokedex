@@ -1,6 +1,6 @@
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
-# Project: https://github.com/Sidaroth/PokedexService/
+# Project: https://github.com/Sidaroth/Pokedex/
 
 from flask import jsonify
 from enum import Enum, unique
@@ -112,14 +112,11 @@ class PokedexRequestHandler:
 		for known in knownPokemon:
 			if query[0] == known.name or query[0] == str(known.id):
 				self.verboseprint("Pokemon found in DB!")
-				delta = known.updatetime - date.today()
 
-				if delta.days < self.DataValidity:
-					self.verboseprint("Data is considered valid")
+				if known.isValid():
 					return jsonify(self.formatPokeString(known))
 				else:
 					self.DB.deleteOccurence(known, occurenceType.pokemon.value)
-					self.verboseprint("Data is NOT considered valid")
 					break
 
 		## If no data, or too old data, query the API for info.
@@ -148,6 +145,7 @@ class PokedexRequestHandler:
 		""" Handles any 'type' request. First we have to check if it is currently known by our DB.
 			If it is known, we have to determine if the data is too old and has to be re-acquired """
 		knownTypes = self.DB.getAllKnownTypes()
+
 		if internal:
 			self.verboseprint("Handling an internal typeRequest: " + str(query))
 
@@ -155,16 +153,12 @@ class PokedexRequestHandler:
 		for knownType in knownTypes:
 			if query[0] == knownType.name or query[0] == str(knownType.id):
 				self.verboseprint("Typematch found!")
-				delta = knownType.updateTime - date.today()
-
-				if delta.days < self.DataValidity:
-					self.verboseprint("Data is considered valid!")
+				if knownType.isValid():
 					if internal:
 						return knownType
 					return jsonify(self.formatTypeString(knownType))
 				else:
 					self.DB.deleteOccurence(knownType, occurenceType.pokeType.value)
-					self.verboseprint("Data is NOT considered valid!")
 					break
 
 		## If no data has been found we need to query the API for potential new type (or BS)
@@ -249,7 +243,7 @@ class PokedexRequestHandler:
 		color = self.colorLookup[typedata.name]
 		fallback = "Type information for " + typedata.name + "."
 
-		## String formatting #pretty #print
+		## String formatting for pretty print. 
 		weaknessString    = "*Weaknesses*: "			+ self.stringBuilder(typedata.weaknesses)
 		resistanceString  = "*Resistances*: "			+ self.stringBuilder(typedata.resistances)
 		immunityString    = "*Immunities*: "			+ self.stringBuilder(typedata.immunities)

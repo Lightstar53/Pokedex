@@ -1,6 +1,6 @@
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
-# Project: https://github.com/Sidaroth/PokedexService/
+# Project: https://github.com/Sidaroth/Pokedex/
 
 from flask import jsonify
 import requests

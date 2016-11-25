@@ -3,7 +3,7 @@
 
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
-# Project: https://github.com/Sidaroth/PokedexService/
+# Project: https://github.com/Sidaroth/Pokedex/
 # Requires: requests, flask (python -m pip install requests) to install requests if necessary. 
 
 from flask import Flask, request, jsonify

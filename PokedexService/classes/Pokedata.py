@@ -1,6 +1,6 @@
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
-# Project: https://github.com/Sidaroth/PokedexService/
+# Project: https://github.com/Sidaroth/Pokedex/
 
 from datetime import date
 from collections import Counter
@@ -10,6 +10,8 @@ class Pokedata:
 
 	def __init__(self, response=None):
 		"""Constructor/Object model"""
+		self.daysValid = 31 # Number of days the data is considered valid
+
 		self.spriteURL = "http://img.pokemondb.net/artwork/"
 		self.id = 0						
 		self.name = ""					
@@ -21,7 +23,7 @@ class Pokedata:
 		self.abilities = []			
 		self.hiddenAbilities = []		
 		self.locations = []				
-		self.updatetime = date.today()
+		self.updateTime = date.today()
 
 		if response != None:
 			self.id = response['id']
@@ -83,6 +85,15 @@ class Pokedata:
 					self.resistances.remove(resistance)
 
 		self.sortLists()
+
+	def isValid(self): 
+		""" Checks if the data can be considered valid """
+		delta = date.today() - self.updateTime
+
+		if delta.days < self.daysValid: # If valid
+			return True
+		else:
+			return False
 
 	def buildResponseString(self):
 		""" Returns a string describing the pokemon """
@@ -240,7 +251,7 @@ class Pokedata:
  
 		# Additional
 		response += "\nTypes marked in *bold* signify double effect (4x weakness or 1/4x resistance).\n"
-		response += "Data was last updated: " + str(self.updatetime) + "\n"
+		response += "Data was last updated: " + str(self.updateTime) + "\n"
 
 		return response
 
