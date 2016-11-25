@@ -2,7 +2,7 @@
 
 Service to run on a server using Flask and python communicating with a slack/discord bot for slash commands in channels.
 
-for testing purposes functionality for /isitup that queries isitup.org's API has also been added. (Was added to check for slack connectivity early on. We won't remove it because why not.)
+Functionality for /isitup that queries isitup.org's API has also been added. (To check for slack connectivity early on. We won't remove it because why not.)
 example command (/isitup google.com):
 * Yay, google.com appears to be up!
 * Nope, google.com appears to be down!
