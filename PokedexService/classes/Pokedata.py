@@ -68,9 +68,8 @@ class Pokedata:
 			self.resistances.extend(pokeType.resistances)
 			self.immunities.extend(pokeType.immunities)
 
-
 		## Check for duplicates
-		for resistance in self.resistances:					## Check all resistances up against all immunities.
+		for resistance in self.resistances:						## Check all resistances up against all immunities.
 			for immunity in self.immunities:
 				if resistance == immunity:						## Pokemon is immune, remove resistance from list. 
 					self.resistances.remove(resistance)

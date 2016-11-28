@@ -8,9 +8,9 @@ def run():
         """ Posts/Gets to set-up '/' """
         ## POST / Bots
         if request.method == 'POST':
-                return serviceHandler.servePost(request)
+            return serviceHandler.servePost(request)
 
         ## GET / webpage
         elif request.method == 'GET':
-                return serviceHandler.serveGet(request)
+            return serviceHandler.serveGet(request)
 

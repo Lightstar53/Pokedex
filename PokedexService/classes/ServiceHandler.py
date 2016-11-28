@@ -34,13 +34,12 @@ class ServiceHandler:
 		    format: token1,token2,token3,token4 etc."""
 		self.verboseprint("Loading valid tokens...")
 
-		thisDir = os.path.dirname(os.path.realpath('__file__'))
-		fileName = os.path.join('PokedexService', 'validTokens.secret')
-		self.verboseprint("File path: " + fileName)
+		fileLocation = os.path.join('PokedexService/classes/', 'validTokens.secret')
+		file = None	
 
 		## Make sure we can open the file
 		try:
-			file = open(fileName)
+			file = open(fileLocation)
 		except IOError as e:
 			self.verboseprint("Could not open file!")
 			self.verboseprint(e)
@@ -62,6 +61,10 @@ class ServiceHandler:
 				return jsonify({"text": "ERROR: The command '" + command + "' is invalid, try /dex help or /pokedex help for more info"})
 			elif command not in self.VALID_COMMANDS[:1]:
 				return jsonify({"text": "ERROR: The command '" + command + "' is invalid, try /isitup help for more info"})
+
+	def populate(self):
+		self.pokedexRequestHandler.populateDBFromCSV()
+		return "Populated"
 
 	def servePost(self, request):
 		""" Retrieves and validates form information posted by slack bots """
@@ -94,6 +97,6 @@ class ServiceHandler:
 				    <body>
 				      <h1>Pokedex</h1>
 				      <p>Nothing to see here, use the slack bot.</p>
-				      <p>Visit <a href="https://github.com/Sidaroth/PokedexService">https://github.com/Sidaroth/PokedexService</a> for more information</a>
+				      <p>Visit <a href="https://github.com/Sidaroth/Pokedex">https://github.com/Sidaroth/Pokedex</a> for more information</a>
 				    </body>
 				 </html>"""

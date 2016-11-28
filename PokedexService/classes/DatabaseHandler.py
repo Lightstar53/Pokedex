@@ -26,7 +26,7 @@ class DatabaseHandler:
 		""" Reads database connection information from hidden file """	## Consider environment variable
 		self.verboseprint("Loading DB Connection info...")
 
-		fileLocation= os.path.join('PokedexService/classes/', 'dbInfo.secret')
+		fileLocation = os.path.join('PokedexService/classes/', 'dbInfo.secret')
 		file = None
 		try:
 			file = open(fileLocation)
@@ -35,7 +35,6 @@ class DatabaseHandler:
 			self.verboseprint(e)
 
 		with file:
-			print(file)
 			fileInput = file.read().split(",")
 			file.close()
 			self.DBUser = fileInput[0]
@@ -86,7 +85,7 @@ class DatabaseHandler:
 		VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
 
 		data = [pd.id, pd.name, pd.sprite, pd.types, pd.weaknesses, pd.immunities,
-		 		pd.resistances, pd.hiddenAbilities, pd.abilities, pd.updatetime]
+		 		pd.resistances, pd.hiddenAbilities, pd.abilities, pd.updateTime]
 
 		cursor.execute(SQL, data)
 		self.connection.commit()
@@ -121,6 +120,7 @@ class DatabaseHandler:
 			known = Pokedata()
 			known.id, known.name, known.sprite, known.types, known.weaknesses, known.immunities, known.resistances, known.hiddenAbilities, known.abilities, known.updatetime = dbTuple
 			knownPokemon.append(known)
+			known.name = known.name.lower();
 
 		return knownPokemon
 

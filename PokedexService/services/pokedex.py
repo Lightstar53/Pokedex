@@ -6,6 +6,7 @@ from flask import jsonify
 from enum import Enum, unique
 from datetime import date, datetime
 import requests
+import csv
 
 from PokedexService.classes.DatabaseHandler import DatabaseHandler
 from PokedexService.classes.Typedata import Typedata
@@ -30,14 +31,13 @@ class PokedexRequestHandler:
 		self.verboseprint = print if verbose else lambda *a, **k: None
 		self.DB = DatabaseHandler(verbose)
 		self.baseUrl = 'http://pokeapi.co/api/v2/'
-
 		self.DataValidity = 14				## Number of days data is valid before re-retrieving
-		self.totalNumberOfPokemon = 721		## As of generation 6 XY/ORAS	
-		self.totalNumberOfTypes = 18		## As of generation 6 XY/ORAS
+		self.totalNumberOfPokemon = 802		## As of generation 7 Sun/Moon	
+		self.totalNumberOfTypes = 18		## As of generation 7 Sun/Moon
 		self.generationStartPokemon = [1, 152, 252, 387, 494, 650, 722]	# Gen1 - 7
 		self.notFound = 'Not found.'
 		self.responseType = 'in_channel'
-
+ 
 		self.colorLookup = {
 			'normal': '#A8A77A', 'fire': '#EE8130', 'water': '#6390F0', 'electric': '#F7D02C',
 			'grass': '#7AC74C', 'ice': '#96D9D6', 'fighting': '#C22E28', 'poison': '#A33EA1',
@@ -45,10 +45,39 @@ class PokedexRequestHandler:
 			'rock': '#B6A136', 'ghost': '#735797', 'dragon': '#6F35FC', 'dark': '#705746',
 			'steel': '#B7B7CE', 'fairy': '#D685AD'}
 
+
+	def populateDBFromCSV(self):
+		""" Reads pokemon information for a .csv file, populating the DB.
+			format is: id, name, sprite, types, hiddens, abilities """
+		if not self.DB.connectToDatabase():
+			return jsonify({"response_type": "ephemeral", "text": "Database connection error. Alert admin. "})
+
+		with open('gen7.csv') as csvfile:
+			reader = csv.DictReader(csvfile, delimiter=',', escapechar='|')
+			for row in reader:
+				pokedata = Pokedata()
+				pokedata.id = row['num']
+				pokedata.name = row['name'].lower()
+				pokedata.sprite = row['sprite']
+				pokedata.hiddenAbilities = row['hiddens'].split(',')
+				pokedata.abilities = row['abilities'].split(',')
+				pokedata.updateTime = date.today()
+				pokedata.types = row['types'].split(',')
+				pokedata.sortLists()
+				
+				internal = True							## Doing an internal query
+				types = []					
+				for pokeType in pokedata.types:			## Retrieving weaknesses, resistances, immunities for each type. 
+					queryElements = []
+					queryElements.append(pokeType)
+					types.append(self.handleTypeRequest(queryElements, internal))
+
+				pokedata.determineTypeEffectiveness(types)
+				print("Storing: " + pokedata.id + ", " + pokedata.name)
+				self.DB.storePokemon(pokedata)
+
 	def populateDB(self):
 		""" Populate the database with information """
-		self.populating = True
-
 		timestamp = datetime.now()
 
 		for i in range(1, self.totalNumberOfPokemon + 1):
@@ -100,11 +129,22 @@ class PokedexRequestHandler:
 		""" Handles any 'pokemon' request. First we have to check if it is currently known by our DB.
 			If it is known, we have to determine if the data is too old and has to be re-acquired """
 
-		## Exceptions
+		## Exceptions, they do seem to love non-conforming pokemon
 		if query[0] == 'deoxys':
 			query[0] = 'deoxys-normal'
 		elif query[0] == 'keldeo':
 			query[0] = 'keldeo-ordinary'
+		elif query[0] == 'oricorio':
+			query[0] = 'oricorio-baile'
+		elif query[0] == 'minior':
+			query[0] = 'minior-meteor'
+		elif query[0] == 'tapu':
+			query[0] = 'tapu-koko'
+		elif query[0] ==  'lycanroc':
+			query[0] = 'lycanroc-midday'
+		elif query[0] == 'type:' or query[0] == 'type:null' or query[0] == 'type: null':
+			query[0] == 'type-null'
+
 
 		knownPokemon = self.DB.getAllKnownPokemon()
 
@@ -125,11 +165,10 @@ class PokedexRequestHandler:
 
 		if response != False:
 			pokedata = Pokedata(response)
-			internal = True
 
-			## Somehow deal with type information from type table... 
-			types = []
-			for pokeType in pokedata.types:
+			internal = True							## Doing an internal query
+			types = []					
+			for pokeType in pokedata.types:			## Retrieving weaknesses, resistances, immunities for each type. 
 				queryElements = []
 				queryElements.append(pokeType)
 				types.append(self.handleTypeRequest(queryElements, internal))
@@ -146,7 +185,7 @@ class PokedexRequestHandler:
 			If it is known, we have to determine if the data is too old and has to be re-acquired """
 		knownTypes = self.DB.getAllKnownTypes()
 
-		if internal:
+		if internal:			## Some other functions needs typedata, we don't want to return a prettyfied JSON string. 
 			self.verboseprint("Handling an internal typeRequest: " + str(query))
 
 		## Check for old data (and if we have to reacquire)
@@ -171,7 +210,7 @@ class PokedexRequestHandler:
 			self.DB.storeType(typedata)
 
 			if internal:
-				return typedata()
+				return typedata
 
 			return jsonify(self.formatTypeString(typedata))
 
@@ -215,8 +254,6 @@ class PokedexRequestHandler:
 		header = "*Pokemon #" + str(pokedata.id) +":*\n"
 		color = self.colorLookup[pokedata.types[0]]
 		fallback = "Pokemon information for " + pokedata.name + "."
-
-		## HOW TO FORMAT THIS SHITE....
 
 		responseString = pokedata.buildResponseString()
 
