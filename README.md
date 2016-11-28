@@ -7,7 +7,7 @@ example command (/isitup google.com):
 * Yay, google.com appears to be up!
 * Nope, google.com appears to be down!
 
-Example usage (to be updated):
+### Example usage (to be updated):
 ![alt tag](http://puu.sh/nPhoX/ab68da452a.png)
 
 /dex and /pokedex are equal
@@ -37,6 +37,8 @@ Example usage (to be updated):
 * Slack server with development access to enable integration with private tokens.
 
 run $ pip3 install -r requirements.txt to automagically install dependencies. 
+
+The program looks for a validTokens.secret, and a dbInfo.secret that are outside of version control to get DB login information and what slack tokens are valid for security reasons. These files should be located next to the code files, in /classes. 
 
 ### Database Structure and Setup
 
