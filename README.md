@@ -15,6 +15,7 @@ Full list of current commands are:
 * /dex type [type]
 * /dex ability [ability}
 * /dex move [move]
+* /dex help
 
 where all [] are either the name, or id, i.e bulbasaur/1, or grass/12 etc. **All** commands can be made silent (only visible to the querying user) by adding a silent flag at the end.
 * /dex bulbasaur silent
@@ -69,11 +70,8 @@ run $ pip3 install -r requirements.txt to automagically install dependencies.
 The program looks for a validTokens.secret, and a dbInfo.secret that are outside of version control to get DB login information and what slack tokens are valid for security reasons. These files should be located next to the code files, in /classes. 
 
 ### Database Structure and Setup
-<<<<<<< Updated upstream
-=======
 See (or run) createTables.sql for table structure details. 
 
->>>>>>> Stashed changes
 ###### Type Table
 Example content (not accurate): 
 
