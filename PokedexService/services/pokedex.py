@@ -1,6 +1,10 @@
 # Author: Sidaroth
 # Copyright: 2016 Christian Holt, ymabob@gmail.com
 # Project: https://github.com/Sidaroth/Pokedex/
+# 
+# TODO: Move Populate functions to DB handler. 
+# 		Move 'handle' functions for each type to the types own class if applicable
+# 		Avoid blob. 
 
 from flask import jsonify
 from enum import Enum, unique
@@ -11,6 +15,8 @@ import csv
 from PokedexService.classes.DatabaseHandler import DatabaseHandler
 from PokedexService.classes.Typedata import Typedata
 from PokedexService.classes.Pokedata import Pokedata
+from PokedexService.classes.Movedata import Movedata
+from PokedexService.classes.Abilitydata import Abilitydata
 
 @unique
 class keywords(Enum):
@@ -18,12 +24,14 @@ class keywords(Enum):
 	pokemon = 'pokemon'
 	dexList = 'list'
 	ability = 'ability'
+	move = 'move'
 
 @unique
 class occurenceType(Enum):
 	pokeType = 'types'
 	pokemon = 'pokemon'
 	ability = 'abilities'
+	move = 'moves'
 
 class PokedexRequestHandler:
 	def __init__(self, verbose=False):
@@ -33,7 +41,9 @@ class PokedexRequestHandler:
 		self.baseUrl = 'http://pokeapi.co/api/v2/'
 		self.DataValidity = 14				## Number of days data is valid before re-retrieving
 		self.totalNumberOfPokemon = 802		## As of generation 7 Sun/Moon	
-		self.totalNumberOfTypes = 18		## As of generation 7 Sun/Moon
+		self.totalNumberOfTypes = 18		
+		self.totalNumberOfMoves = 719
+		self.totalNumberOfAbilities = 232
 		self.generationStartPokemon = [1, 152, 252, 387, 494, 650, 722]	# Gen1 - 7
 		self.notFound = 'Not found.'
 		self.responseType = 'in_channel'
@@ -76,7 +86,7 @@ class PokedexRequestHandler:
 				print("Storing: " + pokedata.id + ", " + pokedata.name)
 				self.DB.storePokemon(pokedata)
 
-	def populateDB(self):
+	def repopulateEntireDB(self):
 		""" Populate the database with information """
 		timestamp = datetime.now()
 
@@ -85,6 +95,12 @@ class PokedexRequestHandler:
 
 		for i in range(1, self.totalNumberOfTypes + 1):
 			self.handlePokedexRequest("type" + str(i))
+
+		for i in range(1, self.totalNumberOfMoves + 1):
+			self.handlePokedexRequest("move" + str(i))
+
+		for i in range(1, self.totalNumberOfAbilities + 1):
+			self.handlePokedexRequest("ability" + str(i))
 
 		timestamp2 = datetime.now()
 		self.verboseprint("Populate took from: " + datetime.strftime(timestamp, '%H:%M:%S') 
@@ -120,6 +136,14 @@ class PokedexRequestHandler:
 		elif keyword == keywords.pokemon.value:
 			self.verboseprint("Keyword 'pokemon' found!")
 			return self.handlePokemonRequest(queryElements[1:])
+
+		elif keyword == keywords.move.value:
+			self.verboseprint("Keyword 'move' found!")
+			return self.handleMoveRequest(queryElements[1:])
+
+		elif keyword == keywords.ability.value:
+			self.verboseprint("Keyword 'ability' found!")
+			return self.handleAbilityRequest(queryElements[1:])
 
 		else:			## Unknown keyword, assume pokemon
 			self.verboseprint("Keyword is unknown.")
@@ -216,6 +240,59 @@ class PokedexRequestHandler:
 
 		return self.errorReply()
 
+	def handleMoveRequest(self, query):
+		""" Handles any 'move' request. First we have to check if it is currently known by our DB.
+			If it is known, we have to determine if the data is too old and has to be re-acquired """
+
+		knownMoves = self.DB.getAllKnownMoves()
+
+		for knownMove in knownMoves:
+			if query[0] == knownMove.name or query[0] == str(knownMove.id):
+				self.verboseprint("Matching move found")
+				if knownMove.isValid():
+					return jsonify(self.formatMoveString(knownMove))
+				else:
+					self.DB.deleteOccurence(knownMove, occurenceType.move.value)
+					break	## Break loop and get from online source. 
+
+		## No data was found, try to get online
+		queryString = self.baseUrl + 'move/' + query[0]
+		response = self.makePokeAPIRequest(queryString)
+
+		if response != False:
+			movedata = Movedata(response)
+			self.DB.storeMove(movedata)
+			return jsonify(self.formatMoveString(movedata))
+
+		else:
+			return self.errorReply()
+
+	def handleAbilityRequest(self, query):
+		""" Handles any 'move' request. First we have to check if it is currently known by our DB.
+			If it is known, we have to determine if the data is too old and has to be re-acquired """
+		self.verboseprint("Handling an ability request with data: " + query[0])
+		knownAbilities = self.DB.getAllKnownAbilities()
+
+		for knownAbility in knownAbilities:
+			if query[0] == knownAbility.name or query[0] == str(knownAbility.id):
+				self.verboseprint("Matching ability found")
+				if knownAbility.isValid():
+					return jsonify(self.formatAbilityString(knownAbility))
+				else:
+					self.DB.deleteOccurence(knownAbility, occurenceType.ability.value)
+					break ## Break loop and get from online source. 
+
+		## No data was found, try to get online
+		queryString = self.baseUrl + 'ability/' + query[0]
+		response = self.makePokeAPIRequest(queryString)
+
+		if response != False:
+			abilitydata = Abilitydata(response)
+			self.DB.storeAbility(abilitydata)
+			return jsonify(self.formatAbilityString(abilitydata))
+		else:
+			return self.errorReply()
+
 	def makePokeAPIRequest(self, queryString ):
 		""" Makes a request to pokeAPI with given argument """
 		self.verboseprint("Querystring: " + queryString)
@@ -264,7 +341,7 @@ class PokedexRequestHandler:
 				"fallback": fallback,
 				"color": color, 
 				"title": pokedata.name.title(),
-				"title_link": "https://github.com/Sidaroth/PokedexService",
+				"title_link": "https://github.com/Sidaroth/Pokedex",
 				"text": responseString,
 				"mrkdwn_in": ['text'],
 				"thumb_url": pokedata.sprite
@@ -305,6 +382,54 @@ class PokedexRequestHandler:
 
 		return response
 
+	def formatAbilityString(self, ability):
+		""" Formats an 'ability' string for pretty return to slack """
+		self.verboseprint("Formatting an ability string")
+		header = "*Ability #" + str(ability.id) + " - " + ability.name + ":*\n"
+		color = "good"
+		fallback = "Ability information for " + ability.name + "."
+
+		responseString = ability.formatResponse()
+
+		response = {
+			"text": header,
+			"response_type": self.responseType,
+			"attachments": [{
+				"fallback": fallback,
+				"color": color,
+				"title": ability.name.title(),
+				"title_link": "https://github.com/Sidaroth/Pokedex",
+				"text": responseString,
+				"mrkdwn_in": ['text'],
+			}]
+		}
+
+		return response
+
+	def formatMoveString(self, move):
+		""" Formats a 'move' string for pretty return to slack """
+		self.verboseprint("Formatting a move string")
+		header = "*Move #" + str(move.id) + " - " + move.name + ":*\n"
+		color = "good"
+		fallback = "Move information for " + move.name + "."
+
+		responseString = move.formatResponse()
+
+		response = {
+			"text": header,
+			"response_type": self.responseType,
+			"attachments": [{
+				"fallback": fallback,
+				"color": color,
+				"title": move.name.title(),
+				"title_link": "https://github.com/Sidaroth/Pokedex",
+				"text": responseString,
+				"mrkdwn_in": ['text'],
+			}]
+		}
+
+		return response
+
 	def help(self):
 		""" Displays helpful information privately to the user on request """
 		self.verboseprint("Oh snap! A user has request aid!")
@@ -315,8 +440,9 @@ class PokedexRequestHandler:
 		helpString += "*/dex [pokemon]* \n"
 		helpString += "*/dex type [type]* \n"
 		helpString += "*/dex pokemon [pokemon]* \n"
+		helpString += "*/dex move [move]"
 		helpString += "*/dex type [type] silent* for a private query. This is hidden from the chat channel.\n"
-		helpString += "For all queries [type] or [pokemon] is interchangable with any name or id, i.e grass and 12, or bulbsaur and 1.\n"
+		helpString += "For all queries [type], [move], [ability], or [pokemon] is interchangable with any name or id, i.e grass and 12, or bulbasaur and 1, or pound and 1 etc.\n"
 		helpString += "Usage of the 'silent' flag is also available for *all* commands.\n"
 		
 		response = {

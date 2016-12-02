@@ -5,6 +5,8 @@ import psycopg2
 import os
 from PokedexService.classes.Typedata import Typedata
 from PokedexService.classes.Pokedata import Pokedata
+from PokedexService.classes.Movedata import Movedata
+from PokedexService.classes.Abilitydata import Abilitydata
 
 class DatabaseHandler:
 	""" Handles all things database
@@ -91,6 +93,30 @@ class DatabaseHandler:
 		self.connection.commit()
 		cursor.close()
 
+	def storeMove(self, md):
+		""" Stores a move with the provided information in the database """
+		self.verboseprint("Storing move '" + md.name + "' in DB")
+		cursor = self.connection.cursor()
+		SQL = """INSERT INTO moves(id, name, type, target, power, accuracy, basePP, critRate, flavorText, updateTime)
+				 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s); """
+		data = [md.id, md.name, md.type, md.target, md.power, 
+				md.accuracy, md.basePP, md.critRate, md.flavorText, md.updateTime]
+
+		cursor.execute(SQL, data)
+		self.connection.commit()
+		cursor.close()
+
+	def storeAbility(self, ad):
+		""" Stores an ability with the provided information in the database """
+		self.verboseprint("Storing ability '" + ad.name + "' in DB")
+		cursor = self.connection.cursor()
+		SQL = """INSERT INTO abilities(id, name, flavorText, updateTime)
+				 VALUES (%s, %s, %s, %s); """
+		data = [ad.id, ad.name, ad.flavorText, ad.updateTime]
+		cursor.execute(SQL, data)
+		self.connection.commit()
+		cursor.close()
+
 	def getAllKnownTypes(self):
 		""" Returns a list of 'typedata' objects for all known types in the database """
 		knownTypes = []
@@ -119,13 +145,39 @@ class DatabaseHandler:
 		for dbTuple in temp:
 			known = Pokedata()
 			known.id, known.name, known.sprite, known.types, known.weaknesses, known.immunities, known.resistances, known.hiddenAbilities, known.abilities, known.updatetime = dbTuple
-			knownPokemon.append(known)
 			known.name = known.name.lower();
+			knownPokemon.append(known)
 
 		return knownPokemon
 
-	def getAllKnownMoves(self):
-		""" Returns a list of 'move' objects for all known pokemon in the database """
+	def getAllKnownAbilities(self):
+		""" Returns a list of 'Abilitydata' objects for all known abilities in the DB """
 		knownAbilities = []
 
+		cursor = self.connection.cursor()
+		cursor.execute("SELECT * FROM abilities")
+		temp = cursor.fetchall()
+
+		for dbTuple in temp:		## unpack results
+			known = Abilitydata()
+			known.id, known.name, known.flavorText, known.updateTime = dbTuple
+			known.name.lower()
+			knownAbilities.append(known)
+
 		return knownAbilities
+
+	def getAllKnownMoves(self):
+		""" Returns a list of 'Movedata' objects for all known moves in the database """
+		knownMoves = []
+		
+		cursor = self.connection.cursor()
+		cursor.execute("SELECT * FROM moves")
+		temp = cursor.fetchall()
+
+		for dbTuple in temp:		## unpack results
+			known = Movedata()
+			known.id, known.name, known.type, known.target, known.power, known.accuracy, known.basePP, known.critRate, known.flavorText, known.updateTime = dbTuple
+			known.name.lower()
+			knownMoves.append(known)
+
+		return knownMoves

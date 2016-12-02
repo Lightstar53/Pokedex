@@ -69,18 +69,12 @@ run $ pip3 install -r requirements.txt to automagically install dependencies.
 The program looks for a validTokens.secret, and a dbInfo.secret that are outside of version control to get DB login information and what slack tokens are valid for security reasons. These files should be located next to the code files, in /classes. 
 
 ### Database Structure and Setup
+<<<<<<< Updated upstream
+=======
+See (or run) createTables.sql for table structure details. 
+
+>>>>>>> Stashed changes
 ###### Type Table
-```
-CREATE TABLE types (
-id int,
-name text,
-immunities text[],
-resistances text[],
-weaknesses text[],
-halfDamageTo text[],
-noDamageTo text[],
-updateTime date);
-```
 Example content (not accurate): 
 
 | id  | name   | immunities         | resistances  | weaknesses | halfDamageTo | noDamageTo  | updateTime  |
@@ -89,19 +83,6 @@ Example content (not accurate):
 |  2  | grass  | {normal, electric} | {normal}     | {water}    | {poison}     | {steel}     | 2016-03-17  |
 
 ###### Pokemon Table (WIP)
-```
-CREATE TABLE pokemon (
-id int,
-name text,
-sprite text,
-types text[],
-weaknesses text[],
-immunities text[],
-resistances text[],
-hiddens text[],
-abilities text[],
-updateTime date);
-```
 
 Example content (not factually accurate):
 
