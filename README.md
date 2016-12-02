@@ -1,6 +1,8 @@
 ### Purpose and Usage
 
-Service to run on a server using Flask and python communicating with a slack/discord bot for slash commands in channels.
+Service intended to run on a server running Flask (uWSGI), communicating with a slack/discord server as a bot for slash commands in channels. 
+
+Future ideas include Who's that pokemon trivia game, and various other tidbits of pokemon information. See issues for more detail. Pull requests and collaborators are encouraged. 
 
 Functionality for /isitup that queries isitup.org's API has also been added. (To check for slack connectivity early on. We won't remove it because why not.)
 example command (/isitup google.com):
@@ -26,13 +28,10 @@ example command (/isitup google.com):
 * Resistances: Bug, Grass x 1/4, Fighting x 1/4
 * Immunities: Ground
 
-/pokedex small 123
-* Pokemon #123 - Scyther
-* Type(s): Flying, Bug
-
 
 ### Installation / Requirements
 * Web server capable of handling python
+* postgresql database running locally (unless you change the code, it looks for access information in dbInfo.secret currently)
 * python3(.5) with dependencies from requirements.txt
 * Slack server with development access to enable integration with private tokens.
 
@@ -41,7 +40,6 @@ run $ pip3 install -r requirements.txt to automagically install dependencies.
 The program looks for a validTokens.secret, and a dbInfo.secret that are outside of version control to get DB login information and what slack tokens are valid for security reasons. These files should be located next to the code files, in /classes. 
 
 ### Database Structure and Setup
-
 ###### Type Table
 ```
 CREATE TABLE types (
@@ -76,7 +74,7 @@ abilities text[],
 updateTime date);
 ```
 
-Example content (not accurate):
+Example content (not factually accurate):
 
 | id  | name   | sprite | types | weaknesses | resistances  | immunities | hiddens |  abilities | updateTime  |
 | --- | ------ | ------ | ----- | ---------- | ------------ | ---------- | ------- | ---------- | ----------- |
