@@ -86,6 +86,25 @@ class PokedexRequestHandler:
 				print("Storing: " + pokedata.id + ", " + pokedata.name)
 				self.DB.storePokemon(pokedata)
 
+	def populateAbilityTableFromCSV(self):
+		""" Reads Ability information from a .csv file populating the ability table.
+		format is: id, name, description """
+
+		if not self.DB.connectToDatabase():
+			return jsonify({"response_type": "ephemeral", "text": "Database connection error. Alert admin. "})
+
+		with open('gen7abilities.csv') as csvfile:
+			reader = csv.DictReader(csvfile, delimiter=',')
+			for row in reader:
+				ability = Abilitydata()
+				ability.id = row['id']
+				ability.name = row['name'].lower()
+				ability.name = ability.name.replace(" ", "-")	## temp measure?
+				ability.flavorText = row['desc']
+				print("Storing: " + ability.id + ": " + ability.name)
+				self.DB.storeAbility(ability)
+
+
 	def repopulateEntireDB(self):
 		""" Populate the database with information """
 		timestamp = datetime.now()

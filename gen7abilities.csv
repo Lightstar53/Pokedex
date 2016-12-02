@@ -1,0 +1,42 @@
+id,name,desc
+192,Stamina,Boosts the Defense stat when hit by an attack.
+193,Wimp Out,The Pokémon cowardly switches out when its HP becomes half or less.
+194,Emergency Exit,The Pokémon, sensing danger, switches out when its HP becomes half or less.
+195,Water Compaction,Boosts the Pokémon's Defense stat sharply when hit by a Water-type move.
+196,Merciless,The Pokémon's attacks become critical hits if the target is poisoned.
+197,Shields Down,When its HP becomes half or less, the Pokémon's shell breaks and it becomes aggressive.
+198,Stakeout,Doubles the damage dealt to the target's replacement if the target switches out.
+199,Water Bubble,Lowers the power of Fire-type moves done to the Pokémon and prevents the Pokémon from getting a burn.
+200,Steelworker,Powers up Steel-type moves.
+201,Berserk,Boosts the Pokémon's Sp. Atk stat when it takes a hit that causes its HP to become half or less.
+202,Slush Rush,Boosts the Pokémon's Speed stat in a hailstorm.
+203,Long Reach,The Pokémon uses its moves without making contact with the target.
+204,Liquid Voice,All sound-based moves become Water-type moves.
+205,Triage,Gives priority to a healing move.
+206,Galvanize,Normal-type moves become Electric-type moves. The power of those moves is boosted a little.
+207,Surge Surfer,Doubles the Pokémon's Speed stat on Electric Terrain.
+208,Schooling,When it has a lot of HP, the Pokémon forms a powerful school. It stops schooling when its HP is low.
+209,Disguise,Once per battle, the shroud that covers the Pokémon can protect it from an attack.
+210,Battle Bond,Defeating an opposing Pokémon strengthens the Pokémon's bond with its Trainer, and it becomes Ash-Greninja. Water Shuriken gets more powerful.
+211,Power Construct,Other Cells gather to aid when its HP becomes half or less. Then the Pokémon changes its form to Complete Forme.
+212,Corrosion,The Pokémon can poison the target even if it's a Steel or Poison type.
+213,Comatose,It's always drowsing and will never wake up. It can attack without waking up.
+214,Queenly Majesty,Its majesty pressures the opposing Pokémon, making it unable to attack using priority moves.
+215,Innards Out,Damages the attacker landing the finishing hit by the amount equal to its last HP.
+216,Dancer,When another Pokémon uses a dance move, it can use a dance move following it regardless of its Speed.
+217,Battery,Powers up ally Pokémon's special moves.
+218,Fluffy,Halves the damage taken from moves that make direct contact, but doubles that of Fire-type moves.
+219,Dazzling,Surprises the opposing Pokémon, making it unable to attack using priority moves.
+220,Soul-Heart,Boosts its Sp. Atk stat every time a Pokémon faints.
+221,Tangling Hair,Contact with the Pokémon lowers the attacker's Speed stat.
+222,Receiver,The Pokémon copies the Ability of a defeated ally.
+223,Power of Alchemy,The Pokémon copies the Ability of a defeated ally.
+224,Beast Boost,The Pokémon boosts its most proficient stat each time it knocks out a Pokémon.
+225,RKS System,Changes the Pokémon's type to match the memory disc it holds.
+226,Electric Surge,Turns the ground into Electric Terrain when the Pokémon enters a battle.
+227,Psychic Surge,Turns the ground into Psychic Terrain when the Pokémon enters a battle.
+228,Misty Surge,Turns the ground into Misty Terrain when the Pokémon enters a battle.
+229,Grassy Surge,Turns the ground into Grassy Terrain when the Pokémon enters a battle.
+230,Full Metal Body,Prevents other Pokémon's moves or Abilities from lowering the Pokémon's stats.
+231,Shadow Shield,Reduces the amount of damage the Pokémon takes while its HP is full.
+232,Prism Armor,Reduces the power of supereffective attacks taken.
