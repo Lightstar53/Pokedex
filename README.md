@@ -10,7 +10,20 @@ example command (/isitup google.com):
 * Nope, google.com appears to be down!
 
 ### Example usage (to be updated):
+Full list of current commands are:
+* /dex [pokemon]
+* /dex type [type]
+* /dex ability [ability}
+* /dex move [move]
+
+where all [] are either the name, or id, i.e bulbasaur/1, or grass/12 etc. **All** commands can be made silent (only visible to the querying user) by adding a silent flag at the end.
+* /dex bulbasaur silent
+* /dex type grass silent
+* /dex ability own-tempo
+
+
 ![alt tag](http://puu.sh/nPhoX/ab68da452a.png)
+![alt tag](https://puu.sh/sC5hM/b9be0707ba.png)
 
 /dex and /pokedex are equal
 
@@ -27,6 +40,22 @@ example command (/isitup google.com):
 * Weaknesses: Electric, Fire, Flying, Ice, Rock x 4
 * Resistances: Bug, Grass x 1/4, Fighting x 1/4
 * Immunities: Ground
+
+/dex ability own-tempo
+* Ability #20 - Own Tempo
+* This Pokémon cannot be confused. If a Pokémon is confused and acquires this ability, its confusion will immediately be healed.
+* Data was last updated: 2016-12-02. 
+
+/dex type grass
+* Type #12:
+* Grass
+* *Weaknesses*: Bug, Fire, Flying, Ice, Poison.
+* *Resistances*: Electric, Grass, Ground, Water.
+* *Immunities*: None.
+* *Resisted by*: Bug, Dragon, Fire, Flying, Grass, Poison, Steel.
+* *Ineffective against*: None.
+
+Data was last updated: 2016-11-28 
 
 
 ### Installation / Requirements
