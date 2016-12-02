@@ -38,12 +38,13 @@ class Movedata:
 		""" 
 			Returns a string describing the move. 
 		"""
+		typeString = "*Type:* " + self.type.title() + ".\n"
 		PPString = "*Base PP:* " + str(self.basePP) + ".\n"
 		accString = "*Accuracy:* " + str(self.accuracy) + ".\n"
 		powerString = "*Power:* " + str(self.power) + ".\n"
-		targetString = "*Target:* " + self.target + ".\n"
+		targetString = "*Target:* " + self.target.title() + ".\n"
 
-		response = PPString + accString + powerString + targetString
+		response = typeString + PPString + accString + powerString + targetString
 		response += "*Description:* " + self.flavorText + ".\n"
 		response += "\nData was last updated: " + str(self.updateTime) + "\n"
 		return response
