@@ -1,7 +1,7 @@
 id,name,desc
 192,Stamina,Boosts the Defense stat when hit by an attack.
 193,Wimp Out,The Pokémon cowardly switches out when its HP becomes half or less.
-194,Emergency Exit,The Pokémon, sensing danger, switches out when its HP becomes half or less.
+194,Emergency Exit,The Pokémon -sensing danger- switches out when its HP becomes half or less.
 195,Water Compaction,Boosts the Pokémon's Defense stat sharply when hit by a Water-type move.
 196,Merciless,The Pokémon's attacks become critical hits if the target is poisoned.
 197,Shields Down,When its HP becomes half or less, the Pokémon's shell breaks and it becomes aggressive.
